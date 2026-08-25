@@ -1,3 +1,4 @@
+import os
 import operator
 from pydantic import BaseModel, Field
 from typing import Annotated, List
@@ -13,7 +14,11 @@ from langgraph.graph import END, MessagesState, START, StateGraph
 
 ### LLM
 
-llm = ChatOpenAI(model="gpt-4o", temperature=0) 
+llm = ChatOpenAI(
+    model=os.getenv("OPENAI_MODEL", "qwen-plus"),
+    base_url=os.getenv("OPENAI_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"),
+    temperature=0,
+)
 
 ### Schema 
 

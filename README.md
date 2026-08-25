@@ -44,20 +44,38 @@ If you don't have Jupyter set up, follow the installation instructions [here](ht
 $ jupyter notebook
 ```
 
-### Setting up env variables
-Briefly going over how to set up environment variables. 
-#### Mac/Linux/WSL
-```
-$ export API_ENV_VAR="your-api-key-here"
-```
-#### Windows Powershell
-```
-PS> $env:API_ENV_VAR = "your-api-key-here"
+### Configure the chat model
+
+Copy the shared environment template:
+
+```bash
+cp .env.example .env
 ```
 
-### Set OpenAI API key
-* If you don't have an OpenAI API key, you can sign up [here](https://openai.com/index/openai-api/).
-*  Set `OPENAI_API_KEY` in your environment 
+The lessons use the OpenAI-compatible API through `ChatOpenAI`. By default,
+the repository is configured for Alibaba Cloud Model Studio in the Beijing
+region:
+
+```dotenv
+OPENAI_API_KEY=your-model-studio-api-key
+OPENAI_MODEL=qwen-plus
+OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+```
+
+API keys and endpoints are region-specific. Update the base URL when your
+Model Studio key belongs to another region.
+
+To use OpenAI or another OpenAI-compatible provider, change the same three
+variables. For OpenAI, for example:
+
+```dotenv
+OPENAI_API_KEY=your-openai-api-key
+OPENAI_MODEL=gpt-4o
+OPENAI_BASE_URL=https://api.openai.com/v1
+```
+
+Notebook model cells load the root `.env` automatically. LangGraph Studio
+configurations also share this root file.
 
 ### Sign up and Set LangSmith API
 * Sign up for LangSmith [here](https://docs.langchain.com/langsmith/create-account-api-key#create-an-account-and-api-key), find out more about LangSmith and how to use it within your workflow [here](https://www.langchain.com/langsmith). 
@@ -94,12 +112,4 @@ You should see the following output:
 
 Open your browser and navigate to the Studio UI: `https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024`.
 
-* To use Studio, you will need to create a .env file with the relevant API keys
-* Run this from the command line to create these files for module 1 to 5, as an example:
-```
-for i in {1..5}; do
-  cp module-$i/studio/.env.example module-$i/studio/.env
-  echo "OPENAI_API_KEY=\"$OPENAI_API_KEY\"" > module-$i/studio/.env
-done
-echo "TAVILY_API_KEY=\"$TAVILY_API_KEY\"" >> module-4/studio/.env
-```
+* Studio reads model and service credentials from the shared root `.env` file.

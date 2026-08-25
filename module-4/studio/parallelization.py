@@ -1,3 +1,4 @@
+import os
 import operator
 from typing import Annotated
 from typing_extensions import TypedDict
@@ -12,7 +13,11 @@ from langchain_openai import ChatOpenAI
 
 from langgraph.graph import StateGraph, START, END
 
-llm = ChatOpenAI(model="gpt-4o", temperature=0) 
+llm = ChatOpenAI(
+    model=os.getenv("OPENAI_MODEL", "qwen-plus"),
+    base_url=os.getenv("OPENAI_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"),
+    temperature=0,
+)
 
 class State(TypedDict):
     question: str

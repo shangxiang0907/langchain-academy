@@ -1,3 +1,4 @@
+import os
 from pydantic import BaseModel, Field
 
 from trustcall import create_extractor
@@ -10,7 +11,11 @@ from langgraph.store.base import BaseStore
 import configuration
 
 # Initialize the LLM
-model = ChatOpenAI(model="gpt-4o", temperature=0) 
+model = ChatOpenAI(
+    model=os.getenv("OPENAI_MODEL", "qwen-plus"),
+    base_url=os.getenv("OPENAI_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"),
+    temperature=0,
+)
 
 # Schema 
 class UserProfile(BaseModel):
