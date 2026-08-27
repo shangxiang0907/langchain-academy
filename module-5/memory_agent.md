@@ -1,28 +1,49 @@
-# Memory Agent
+# Memory Agent 记忆代理
 
-## Review
+## Review 回顾
 
 We created a chatbot that saves semantic memories to a single [user profile](https://docs.langchain.com/oss/python/concepts/memory#profile) or [collection](https://docs.langchain.com/oss/python/concepts/memory#collection).
 
+我们创建了一个聊天机器人，可将语义记忆保存到单一 [用户档案](https://docs.langchain.com/oss/python/concepts/memory#profile) 或 [集合](https://docs.langchain.com/oss/python/concepts/memory#collection) 中。
+
 We introduced [Trustcall](https://github.com/hinthornw/trustcall) as a way to update either schema.
 
-## Goals
+我们引入了 [Trustcall](https://github.com/hinthornw/trustcall)，作为一种更新任一模式的方法。
+
+## Goals 目标
 
 Now, we're going to pull together the pieces we've learned to build an agent with long-term memory.
 
-Our agent, `task_mAIstro`, will help us manage a ToDo list! 
+现在，我们将整合已学知识，构建一个具备长期记忆的代理。
 
-The chatbots we built previously *always* reflected on the conversation and saved memories. 
+Our agent, `task_mAIstro`, will help us manage a ToDo list!
+
+我们的代理 `task_mAIstro` 将帮助我们管理待办事项列表（ToDo list）！
+
+The chatbots we built previously *always* reflected on the conversation and saved memories.
+
+我们此前构建的聊天机器人 *始终* 对对话进行反思并保存记忆。
 
 `task_mAIstro` will decide *when* to save memories (items to our ToDo list).
 
-The chatbots we built previously always saved one type of memory, a profile or a collection. 
+`task_mAIstro` 将决定 *何时* 保存记忆（即待办事项列表中的条目）。
+
+The chatbots we built previously always saved one type of memory, a profile or a collection.
+
+我们此前构建的聊天机器人始终仅保存一种类型的记忆：用户档案或集合。
 
 `task_mAIstro` can decide to save to either a user profile or a collection of ToDo items.
 
+`task_mAIstro` 可决定将记忆保存至用户档案或待办事项条目集合中。
+
 In addition semantic memory, `task_mAIstro` also will manage procedural memory.
 
-This allows the user to update their preferences for creating ToDo items. 
+除语义记忆外，`task_mAIstro` 还将管理程序性记忆。
+
+This allows the user to update their preferences for creating ToDo items.
+
+这使用户能够更新其创建待办事项条目的偏好设置。
+
 
 
 ```python
@@ -57,20 +78,34 @@ load_dotenv(find_dotenv(usecwd=True))
 _set_env("OPENAI_API_KEY")
 ```
 
-## Visibility into Trustcall updates
+## Visibility into Trustcall updates Trustcall 更新的可见性
 
 Trustcall creates and updates JSON schemas.
 
+Trustcall 创建并更新 JSON 模式。
+
 What if we want visibility into the *specific changes* made by Trustcall?
+
+如果我们希望了解 Trustcall 所做的 *具体变更*，该怎么办？
 
 For example, we saw before that Trustcall has some of its own tools to:
 
+例如，我们之前已看到 Trustcall 自带一些工具，用于：
+
 * Self-correct from validation failures -- [see trace example here](https://smith.langchain.com/public/5cd23009-3e05-4b00-99f0-c66ee3edd06e/r/9684db76-2003-443b-9aa2-9a9dbc5498b7) 
+  - – 从验证失败中自我修正 — [参见此处的 trace 示例](https://smith.langchain.com/public/5cd23009-3e05-4b00-99f0-c66ee3edd06e/r/9684db76-2003-443b-9aa2-9a9dbc5498b7)
+
 * Update existing documents -- [see trace example here](https://smith.langchain.com/public/f45bdaf0-6963-4c19-8ec9-f4b7fe0f68ad/r/760f90e1-a5dc-48f1-8c34-79d6a3414ac3)
+  - – 更新现有文档 — [参见此处的 trace 示例](https://smith.langchain.com/public/f45bdaf0-6963-4c19-8ec9-f4b7fe0f68ad/r/760f90e1-a5dc-48f1-8c34-79d6a3414ac3)
 
 Visibility into these tools can be useful for the agent we're going to build.
 
+了解这些工具的执行情况，对我们即将构建的代理十分有用。
+
 Below, we'll show how to do this!
+
+下方我们将演示如何实现这一点！
+
 
 
 ```python
@@ -85,9 +120,16 @@ class MemoryCollection(BaseModel):
 
 We can add a [listener](https://python.langchain.com/docs/how_to/lcel_cheatsheet/#add-lifecycle-listeners) <!-- broken, but cannot find better linke --> to the Trustcall extractor.
 
+我们可为 Trustcall 提取器添加一个 [监听器](https://python.langchain.com/docs/how_to/lcel_cheatsheet/#add-lifecycle-listeners) <!-- 链接失效，但暂未找到更佳替代链接 -->。
+
 This will pass runs from the extractor's execution to a class, `Spy`, that we will define.
 
+这会将提取器执行过程中的运行（run）传递给一个我们自定义的类 `Spy`。
+
 Our `Spy` class will extract information about what tool calls were made by Trustcall.
+
+我们的 `Spy` 类将提取 Trustcall 所调用工具的相关信息。
+
 
 
 ```python
@@ -338,21 +380,36 @@ print(changes)
     Content: {'content': 'Lance went to Tartine and ate a croissant. He was also thinking about his trip to Japan and going back this winter.'}
 
 
-## Creating an agent
+## Creating an agent 构建代理
 
 There are many different agent architectures to choose from.
 
+可供选择的代理架构种类繁多。
+
 Here, we'll implement something simple, a [ReAct](https://docs.langchain.com/oss/python/langgraph/workflows-agents#agents) agent.
+
+此处，我们将实现一种简单的 [ReAct](https://docs.langchain.com/oss/python/langgraph/workflows-agents#agents) 代理。
 
 This agent will be a helpful companion for creating and managing a ToDo list.
 
-This agent can make a decision to update three types of long-term memory: 
+该代理将成为创建和管理待办事项列表的得力助手。
 
-(a) Create or update a user `profile` with general user information 
+This agent can make a decision to update three types of long-term memory:
+
+该代理可决定更新三类长期记忆：
+
+(a) Create or update a user `profile` with general user information
+
+(a) 创建或更新用户 `profile`（用户档案），以保存通用用户信息
 
 (b) Add or update items in a ToDo list `collection`
 
+(b) 向待办事项列表 `collection`（集合）中添加或更新条目
+
 (c) Update its own `instructions` on how to update items to the ToDo list
+
+(c) 更新其自身的 `instructions`（指令），以明确如何更新待办事项列表中的条目
+
 
 
 ```python
@@ -372,11 +429,16 @@ load_dotenv(find_dotenv(usecwd=True))
 _set_env("OPENAI_API_KEY")
 ```
 
-## Graph definition 
+## Graph definition  图定义
 
 We add a simple router, `route_message`, that makes a binary decision to save memories.
 
+我们添加一个简单路由器 `route_message`，用于对是否保存记忆作出二元决策。
+
 The memory collection updating is handled by `Trustcall` in the `write_memory` node, as before!
+
+内存集合的更新仍由 `write_memory` 节点中的 `Trustcall` 处理，与之前一致！
+
 
 
 ```python
@@ -883,7 +945,12 @@ for chunk in graph.stream({"messages": input_messages}, config, stream_mode="val
 
 We can see that Trustcall performs patching of the existing memory:
 
+我们可以看到 Trustcall 对现有记忆执行了补丁（patching）操作：
+
 https://smith.langchain.com/public/4ad3a8af-3b1e-493d-b163-3111aa3d575a/r
+
+https://smith.langchain.com/public/4ad3a8af-3b1e-493d-b163-3111aa3d575a/r
+
 
 
 ```python
@@ -934,9 +1001,16 @@ for memory in across_thread_memory.search(("todo", user_id)):
 
 Now we can create a new thread.
 
-This creates a new session. 
+现在我们可以创建一个新线程。
 
-Profile, ToDos, and Instructions saved to long-term memory are accessed. 
+This creates a new session.
+
+这将创建一个新会话。
+
+Profile, ToDos, and Instructions saved to long-term memory are accessed.
+
+已保存至长期记忆的档案、待办事项及指令将被访问。
+
 
 
 ```python
@@ -998,7 +1072,11 @@ for chunk in graph.stream({"messages": input_messages}, config, stream_mode="val
     These options should help you get started on booking swim lessons.
 
 
-Trace: 
+Trace:
+
+追踪：
+
+https://smith.langchain.com/public/84768705-be91-43e4-8a6f-f9d3cee93782/r
 
 https://smith.langchain.com/public/84768705-be91-43e4-8a6f-f9d3cee93782/r
 

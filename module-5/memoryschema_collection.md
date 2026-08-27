@@ -1,18 +1,28 @@
-# Chatbot with Collection Schema 
+# Chatbot with Collection Schema  使用集合模式的聊天机器人
 
-## Review
+## Review 回顾
 
-We extended our chatbot to save semantic memories to a single [user profile](https://docs.langchain.com/oss/python/concepts/memory#profile). 
+We extended our chatbot to save semantic memories to a single [user profile](https://docs.langchain.com/oss/python/concepts/memory#profile).
 
-We also introduced a library, [Trustcall](https://github.com/hinthornw/trustcall), to update this schema with new information. 
+我们扩展了聊天机器人，使其能将语义记忆保存到单个[用户档案](https://docs.langchain.com/oss/python/concepts/memory#profile)中。
 
-## Goals
+We also introduced a library, [Trustcall](https://github.com/hinthornw/trustcall), to update this schema with new information.
 
-Sometimes we want to save memories to a [collection](https://docs.google.com/presentation/d/181mvjlgsnxudQI6S3ritg9sooNyu4AcLLFH1UK0kIuk/edit#slide=id.g30eb3c8cf10_0_200) rather than single profile. 
+我们还引入了一个名为[Trustcall](https://github.com/hinthornw/trustcall)的库，用于根据新信息更新该模式。
+
+## Goals 目标
+
+Sometimes we want to save memories to a [collection](https://docs.google.com/presentation/d/181mvjlgsnxudQI6S3ritg9sooNyu4AcLLFH1UK0kIuk/edit#slide=id.g30eb3c8cf10_0_200) rather than single profile.
+
+有时我们希望将记忆保存到[集合](https://docs.google.com/presentation/d/181mvjlgsnxudQI6S3ritg9sooNyu4AcLLFH1UK0kIuk/edit#slide=id.g30eb3c8cf10_0_200)中，而非单一用户档案。
 
 Here we'll update our chatbot to [save memories to a collection](https://docs.langchain.com/oss/python/concepts/memory#collection).
 
-We'll also show how to use Trustcall to update this collection. 
+此处我们将更新聊天机器人，使其能[将记忆保存到集合中](https://docs.langchain.com/oss/python/concepts/memory#collection)。
+
+We'll also show how to use Trustcall to update this collection.
+
+我们还将演示如何使用 Trustcall 更新该集合。
 
 
 
@@ -40,15 +50,24 @@ os.environ["LANGSMITH_TRACING"] = "true"
 os.environ["LANGSMITH_PROJECT"] = "langchain-academy"
 ```
 
-## Defining a collection schema
+## Defining a collection schema 定义集合模式
 
 Instead of storing user information in a fixed profile structure, we'll create a flexible collection schema to store memories about user interactions.
 
+我们不会将用户信息存储在固定的档案结构中，而是创建一个灵活的集合模式，用于存储关于用户交互的记忆。
+
 Each memory will be stored as a separate entry with a single `content` field for the main information we want to remember
+
+每条记忆将作为独立条目存储，仅含一个 `content` 字段，用于保存我们希望记住的主要信息。
 
 This approach allows us to build an open-ended collection of memories that can grow and change as we learn more about the user.
 
-We can define a collection schema as a [Pydantic](https://docs.pydantic.dev/latest/) object. 
+该方法使我们能够构建一个开放式的记忆集合，随着对用户的了解不断加深而持续扩展与演进。
+
+We can define a collection schema as a [Pydantic](https://docs.pydantic.dev/latest/) object.
+
+我们可以将集合模式定义为一个[Pydantic](https://docs.pydantic.dev/latest/) 对象。
+
 
 
 ```python
@@ -70,6 +89,9 @@ _set_env("OPENAI_API_KEY")
 ```
 
 We can used LangChain's chat model  [chat model](https://docs.langchain.com/oss/python/langchain/models) interface's [`with_structured_output`](https://docs.langchain.com/oss/python/langchain/models#structured-outputs) method to enforce structured output.
+
+我们可以使用 LangChain 的聊天模型 [chat model](https://docs.langchain.com/oss/python/langchain/models) 接口的 [`with_structured_output`](https://docs.langchain.com/oss/python/langchain/models#structured-outputs) 方法，以强制输出结构化结果。
+
 
 
 ```python
@@ -98,6 +120,9 @@ memory_collection.memories
 
 We can use `model_dump()` to serialize a Pydantic model instance into a Python dictionary.
 
+我们可以使用 `model_dump()` 将 Pydantic 模型实例序列化为 Python 字典。
+
+
 
 ```python
 memory_collection.memories[0].model_dump()
@@ -110,7 +135,10 @@ memory_collection.memories[0].model_dump()
 
 
 
-Save dictionary representation of each memory to the store. 
+Save dictionary representation of each memory to the store.
+
+将每条记忆的字典表示形式保存至存储器中。
+
 
 
 ```python
@@ -134,7 +162,10 @@ value = memory_collection.memories[1].model_dump()
 in_memory_store.put(namespace_for_memory, key, value)
 ```
 
-Search for memories in the store. 
+Search for memories in the store.
+
+在存储器中搜索记忆。
+
 
 
 ```python
@@ -147,24 +178,42 @@ for m in in_memory_store.search(namespace_for_memory):
     {'value': {'content': 'Lance likes to bike.'}, 'key': 'e132a1ea-6202-43ac-a9a6-3ecf2c1780a8', 'namespace': ['1', 'memories'], 'created_at': '2024-10-30T21:43:26.893833+00:00', 'updated_at': '2024-10-30T21:43:26.893834+00:00'}
 
 
-## Updating collection schema
+## Updating collection schema 更新集合模式
 
-We discussed the challenges with updating a profile schema in the last lesson. 
+We discussed the challenges with updating a profile schema in the last lesson.
 
-The same applies for collections! 
+上一课中我们讨论了更新用户档案模式所面临的挑战。
 
-We want the ability to update the collection with new memories as well as update existing memories in the collection. 
+The same applies for collections!
 
-Now we'll show that [Trustcall](https://github.com/hinthornw/trustcall) can be also used to update a collection. 
+集合同样适用！
+
+We want the ability to update the collection with new memories as well as update existing memories in the collection.
+
+我们希望既能向集合中添加新记忆，也能更新集合中已有的记忆。
+
+Now we'll show that [Trustcall](https://github.com/hinthornw/trustcall) can be also used to update a collection.
+
+接下来我们将展示 [Trustcall](https://github.com/hinthornw/trustcall) 同样可用于更新集合。
 
 This enables both addition of new memories as well as [updating existing memories in the collection](https://github.com/hinthornw/trustcall?tab=readme-ov-file#simultanous-updates--insertions
 ).
 
-Let's define a new extractor with Trustcall. 
+这使得我们既能添加新记忆，也能[更新集合中已有的记忆](https://github.com/hinthornw/trustcall?tab=readme-ov-file#simultanous-updates--insertions
+)。
 
-As before, we provide the schema for each memory, `Memory`.  
+Let's define a new extractor with Trustcall.
 
-But, we can supply `enable_inserts=True` to allow the extractor to insert new memories to the collection. 
+让我们使用 Trustcall 定义一个新的提取器。
+
+As before, we provide the schema for each memory, `Memory`.
+
+与之前一样，我们提供每条记忆的模式 `Memory`。
+
+But, we can supply `enable_inserts=True` to allow the extractor to insert new memories to the collection.
+
+但我们可以设置 `enable_inserts=True`，以允许该提取器向集合中插入新记忆。
+
 
 
 ```python
@@ -293,7 +342,10 @@ for m in result["responses"]:
     content='Lance went to Tartine and ate a croissant. He was thinking about his trip to Japan and going back this winter!'
 
 
-This tells us that we updated the first memory in the collection by specifying the `json_doc_id`. 
+This tells us that we updated the first memory in the collection by specifying the `json_doc_id`.
+
+这表明我们通过指定 `json_doc_id` 更新了集合中的第一条记忆。
+
 
 
 ```python
@@ -306,13 +358,21 @@ for m in result["response_metadata"]:
     {'id': 'call_Y4S3poQgFmDfPy2ExPaMRk8g'}
 
 
-LangSmith trace: 
+LangSmith trace:
+
+LangSmith 追踪记录：
 
 https://smith.langchain.com/public/ebc1cb01-f021-4794-80c0-c75d6ea90446/r
 
-## Chatbot with collection schema updating
+https://smith.langchain.com/public/ebc1cb01-f021-4794-80c0-c75d6ea90446/r
+
+
+## Chatbot with collection schema updating 支持集合模式更新的聊天机器人
 
 Now, let's bring Trustcall into our chatbot to create and update a memory collection.
+
+现在，让我们将 Trustcall 集成到聊天机器人中，以创建并更新记忆集合。
+
 
 
 ```python
@@ -516,6 +576,9 @@ for chunk in graph.stream({"messages": input_messages}, config, stream_mode="val
 
 Continue the conversation in a new thread.
 
+在新会话线程中继续对话。
+
+
 
 ```python
 # We supply a thread ID for short-term (within-thread) memory
@@ -554,9 +617,12 @@ for chunk in graph.stream({"messages": input_messages}, config, stream_mode="val
 
 https://smith.langchain.com/public/c87543ec-b426-4a82-a3ab-94d01c01d9f4/r
 
+https://smith.langchain.com/public/c87543ec-b426-4a82-a3ab-94d01c01d9f4/r
+
 ## Studio
 
 ![Screenshot 2024-10-30 at 11.29.25 AM.png](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/6732d0876d3daa19fef993ba_Screenshot%202024-11-11%20at%207.50.21%E2%80%AFPM.png)
+
 
 
 ```python

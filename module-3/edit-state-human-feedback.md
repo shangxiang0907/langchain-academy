@@ -1,22 +1,38 @@
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-3/edit-state-human-feedback.ipynb) [![Open in LangChain Academy](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/58239520-lesson-3-editing-state-and-human-feedback)
 
-# Editing graph state
+[![在 Colab 中打开](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-3/edit-state-human-feedback.ipynb) [![在 LangChain 学院中打开](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/58239520-lesson-3-editing-state-and-human-feedback)
 
-## Review
+
+# Editing graph state 编辑图状态
+
+## Review 回顾
 
 We discussed motivations for human-in-the-loop:
 
+我们讨论了引入人工闭环（human-in-the-loop）的动因：
+
 (1) `Approval` - We can interrupt our agent, surface state to a user, and allow the user to accept an action
+
+（1）`审批` — 我们可以中断代理、向用户展示当前状态，并允许用户接受某项操作
 
 (2) `Debugging` - We can rewind the graph to reproduce or avoid issues
 
-(3) `Editing` - You can modify the state 
+（2）`调试` — 我们可以倒回图以复现或规避问题
+
+(3) `Editing` - You can modify the state
+
+（3）`编辑` — 您可以修改状态
 
 We showed how breakpoints support user approval, but don't yet know how to modify our graph state once our graph is interrupted!
 
-## Goals
+我们已演示断点如何支持用户审批，但尚不清楚图被中断后如何修改图状态！
+
+## Goals 目标
 
 Now, let's show how to directly edit the graph state and insert human feedback.
+
+现在，让我们演示如何直接编辑图状态并插入人工反馈。
+
 
 
 ```python
@@ -38,15 +54,24 @@ load_dotenv(find_dotenv(usecwd=True))
 _set_env("OPENAI_API_KEY")
 ```
 
-## Editing state 
+## Editing state  编辑状态
 
 Previously, we introduced breakpoints.
 
+此前，我们介绍了断点。
+
 We used them to interrupt the graph and await user approval before executing the next node.
+
+我们用它来中断图，并在执行下一个节点前等待用户审批。
 
 But breakpoints are also [opportunities to modify the graph state](https://docs.langchain.com/oss/javascript/langgraph/use-time-travel#3-update-the-state).
 
+但断点也是[修改图状态的机会](https://docs.langchain.com/oss/javascript/langgraph/use-time-travel#3-update-the-state)。
+
 Let's set up our agent with a breakpoint before the `assistant` node.
+
+让我们为代理在 `assistant` 节点前设置一个断点。
+
 
 
 ```python
@@ -136,7 +161,12 @@ display(Image(graph.get_graph(xray=True).draw_mermaid_png()))
 
 Let's run!
 
-We can see the graph is interrupted before the chat model responds. 
+开始运行！
+
+We can see the graph is interrupted before the chat model responds.
+
+我们可以看到图在聊天模型响应前被中断了。
+
 
 
 ```python
@@ -171,10 +201,18 @@ state
 
 Now, we can directly apply a state update.
 
+现在，我们可以直接应用状态更新。
+
 Remember, updates to the `messages` key will use the `add_messages` reducer:
- 
+
+请记住，对 `messages` 键的更新将使用 `add_messages` 归约器：
+
 * If we want to over-write the existing message, we can supply the message `id`.
+  - 如果我们想覆盖现有消息，可以提供该消息的 `id`。
+
 * If we simply want to append to our list of messages, then we can pass a message without an `id` specified, as shown below.
+  - 如果我们只想将消息追加到消息列表末尾，则可传入一个未指定 `id` 的消息（如下所示）。
+
 
 
 ```python
@@ -195,9 +233,16 @@ graph.update_state(
 
 Let's have a look.
 
-We called `update_state` with a new message. 
+我们来看一下。
+
+We called `update_state` with a new message.
+
+我们调用了 `update_state` 并传入一条新消息。
 
 The `add_messages` reducer appends it to our state key, `messages`.
+
+`add_messages` 归约器将其追加到我们的状态键 `messages` 中。
+
 
 
 ```python
@@ -216,7 +261,12 @@ for m in new_state['messages']:
 
 Now, let's proceed with our agent, simply by passing `None` and allowing it proceed from the current state.
 
+现在，我们只需传入 `None` 即可让代理从当前状态继续执行。
+
 We emit the current and then proceed to execute the remaining nodes.
+
+我们将先输出当前状态，然后继续执行剩余节点。
+
 
 
 ```python
@@ -242,7 +292,12 @@ for event in graph.stream(None, thread, stream_mode="values"):
 
 Now, we're back at the `assistant`, which has our `breakpoint`.
 
+现在，我们又回到了带有 `breakpoint` 的 `assistant` 节点。
+
 We can again pass `None` to proceed.
+
+我们可再次传入 `None` 以继续执行。
+
 
 
 ```python
@@ -259,18 +314,44 @@ for event in graph.stream(None, thread, stream_mode="values"):
     3 multiplied by 3 equals 9.
 
 
-### Editing graph state in Studio
+### Editing graph state in Studio 在 Studio 中编辑图状态
 
 **⚠️ Notice**
 
-Since filming these videos, we've updated Studio so that it can now be run locally and accessed through your browser. This is the preferred way to run Studio instead of using the Desktop App shown in the video. It is now called _LangSmith Studio_ instead of _LangGraph Studio_. Detailed setup instructions are available in the "Getting Setup" guide at the start of the course. You can find a description of Studio [here](https://docs.langchain.com/langsmith/studio), and specific details for local deployment [here](https://docs.langchain.com/langsmith/quick-start-studio#local-development-server).  
+**⚠️ 注意**
+
+Since filming these videos, we've updated Studio so that it can now be run locally and accessed through your browser.
+
+自录制这些视频以来，我们已更新 Studio，使其现在可本地运行并通过浏览器访问。
+
+This is the preferred way to run Studio instead of using the Desktop App shown in the video.
+
+这是运行 Studio 的首选方式，而非视频中展示的桌面应用。
+
+It is now called _LangSmith Studio_ instead of _LangGraph Studio_.
+
+它现在被称为 _LangSmith Studio_，而非 _LangGraph Studio_。
+
+Detailed setup instructions are available in the "Getting Setup" guide at the start of the course.
+
+详细的安装说明可在本课程开头的“开始设置”指南中找到。
+
+You can find a description of Studio [here](https://docs.langchain.com/langsmith/studio), and specific details for local deployment [here](https://docs.langchain.com/langsmith/quick-start-studio#local-development-server).
+
+您可在此处查看 Studio 的说明文档：[此处](https://docs.langchain.com/langsmith/studio)，以及本地部署的具体细节：[此处](https://docs.langchain.com/langsmith/quick-start-studio#local-development-server)。
+
 To start the local development server, run the following command in your terminal in the `/studio` directory in this module:
+
+要在本地启动开发服务器，请在本模块的 `/studio` 目录下于终端中运行以下命令：
 
 ```
 langgraph dev
 ```
 
 You should see the following output:
+
+您应看到如下输出：
+
 ```
 - 🚀 API: http://127.0.0.1:2024
 - 🎨 Studio UI: https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024
@@ -279,7 +360,12 @@ You should see the following output:
 
 Open your browser and navigate to the **Studio UI** URL shown above.
 
-The LangGraph API [supports editing graph state](https://docs.langchain.com/langsmith/add-human-in-the-loop). 
+打开您的浏览器并导航至上方显示的 **Studio UI** URL。
+
+The LangGraph API [supports editing graph state](https://docs.langchain.com/langsmith/add-human-in-the-loop).
+
+LangGraph API [支持编辑图状态](https://docs.langchain.com/langsmith/add-human-in-the-loop)。
+
 
 
 ```python
@@ -294,13 +380,22 @@ from langgraph_sdk import get_client
 client = get_client(url="http://127.0.0.1:2024")
 ```
 
-Our agent is defined in `studio/agent.py`. 
+Our agent is defined in `studio/agent.py`.
 
-If you look at the code, you'll see that it *does not* have a breakpoint! 
- 
+我们的代理定义在 `studio/agent.py` 中。
+
+If you look at the code, you'll see that it *does not* have a breakpoint!
+
+如果您查看代码，会发现其中 *并未* 设置断点！
+
 Of course, we can add it to `agent.py`, but one very nice feature of the API is that we can pass in a breakpoint!
 
+当然，我们可以在 `agent.py` 中添加断点，但 API 的一个非常实用的功能是：我们可以直接传入断点！
+
 Here, we pass a `interrupt_before=["assistant"]`.
+
+此处，我们传入 `interrupt_before=["assistant"]`。
+
 
 
 ```python
@@ -328,6 +423,9 @@ async for chunk in client.runs.stream(
 
 
 We can get the current state
+
+我们可以获取当前状态。
+
 
 
 ```python
@@ -369,6 +467,9 @@ current_state
 
 We can look at the last message in state.
 
+我们可以查看状态中的最后一条消息。
+
+
 
 ```python
 last_message = current_state['values']['messages'][-1]
@@ -389,6 +490,9 @@ last_message
 
 
 We can edit it!
+
+我们可以编辑它！
+
 
 
 ```python
@@ -427,11 +531,22 @@ last_message
 
 
 
-Remember, as we said before, updates to the `messages` key will use the same `add_messages` reducer. 
+Remember, as we said before, updates to the `messages` key will use the same `add_messages` reducer.
+
+请记住，如前所述，对 `messages` 键的更新将使用相同的 `add_messages` 归约器。
 
 If we want to over-write the existing message, then we can supply the message `id`.
 
-Here, we did that. We only modified the message `content`, as shown above.
+如果我们想覆盖现有消息，则可以提供该消息的 `id`。
+
+Here, we did that.
+
+此处我们正是这样做的。
+
+We only modified the message `content`, as shown above.
+
+我们仅修改了消息的 `content`（如上所示）。
+
 
 
 ```python
@@ -448,7 +563,10 @@ await client.threads.update_state(thread['thread_id'], {"messages": last_message
 
 
 
-Now, we resume by passing `None`. 
+Now, we resume by passing `None`.
+
+现在，我们通过传入 `None` 来恢复执行。
+
 
 
 ```python
@@ -481,6 +599,9 @@ async for chunk in client.runs.stream(
 
 We get the result of the tool call as `9`, as expected.
 
+我们得到了工具调用的结果 `9`，符合预期。
+
+
 
 ```python
 async for chunk in client.runs.stream(
@@ -507,19 +628,32 @@ async for chunk in client.runs.stream(
     --------------------------------------------------
 
 
-## Awaiting user input
+## Awaiting user input 等待用户输入
 
 So, it's clear that we can edit our agent state after a breakpoint.
 
+因此，显然我们可以在断点之后编辑代理状态。
+
 Now, what if we want to allow for human feedback to perform this state update?
+
+那么，如果我们希望允许人工反馈来执行此状态更新，该怎么办？
 
 We'll add a node that serves as a placeholder for human feedback within our agent.
 
+我们将在代理中添加一个节点，作为人工反馈的占位符。
+
 This `human_feedback` node allow the user to add feedback directly to state.
- 
+
+这个 `human_feedback` 节点允许用户直接向状态添加反馈。
+
 We specify the breakpoint using `interrupt_before` our `human_feedback` node.
 
+我们通过在 `human_feedback` 节点前设置 `interrupt_before` 来指定断点。
+
 We set up a checkpointer to save the state of the graph up until this node.
+
+我们设置一个检查点器（checkpointer），以保存图在此节点之前的状态。
+
 
 
 ```python
@@ -566,9 +700,16 @@ display(Image(graph.get_graph().draw_mermaid_png()))
 
 We will get feedback from the user.
 
+我们将从用户处获取反馈。
+
 We use `.update_state` to update the state of the graph with the human response we get, as before.
 
+我们像之前一样，使用 `.update_state` 来用获取到的人类响应更新图的状态。
+
 We use the `as_node="human_feedback"` parameter to apply this state update as the specified node, `human_feedback`.
+
+我们使用 `as_node="human_feedback"` 参数将此状态更新应用为指定节点 `human_feedback`。
+
 
 
 ```python

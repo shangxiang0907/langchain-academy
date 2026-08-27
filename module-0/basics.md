@@ -1,30 +1,94 @@
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-0/basics.ipynb) [![Open in LangChain Academy](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/56295530-getting-set-up-video-guide)
 
-# LangChain Academy
+[![在 Colab 中打开](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-0/basics.ipynb) [![在 LangChain 学院中打开](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/56295530-getting-set-up-video-guide)
 
-Welcome to LangChain Academy! 
 
-## Context
+# LangChain Academy LangChain 学院
 
-At LangChain, we aim to make it easy to build LLM applications. One type of LLM application you can build is an agent. There’s a lot of excitement around building agents because they can automate a wide range of tasks that were previously impossible. 
+Welcome to LangChain Academy!
 
-In practice though, it is incredibly difficult to build systems that reliably execute on these tasks. As we’ve worked with our users to put agents into production, we’ve learned that more control is often necessary. You might need an agent to always call a specific tool first or use different prompts based on its state. 
+欢迎来到 LangChain 学院！
 
-To tackle this problem, we’ve built [LangGraph](https://docs.langchain.com/oss/python/langgraph/overview) — a framework for building agent and multi-agent applications. Separate from the LangChain package, LangGraph’s core design philosophy is to help developers add better precision and control into agent workflows, suitable for the complexity of real-world systems.
+## Context 背景
 
-## Course Structure
+At LangChain, we aim to make it easy to build LLM applications.
 
-The course is structured as a set of modules, with each module focused on a particular theme related to LangGraph. You will see a folder for each module, which contains a series of notebooks. A video will accompany each notebook to help walk through the concepts, but the notebooks are also stand-alone, meaning that they contain explanations and can be viewed independently of the videos. Each module folder also contains a `studio` folder, which contains a set of graphs that can be loaded into [LangSmith Studio](https://docs.langchain.com/langsmith/quick-start-studio), our IDE for building LangGraph applications.
+在 LangChain，我们的目标是让构建 LLM 应用程序变得简单。
 
-## Setup
+One type of LLM application you can build is an agent.
+
+你可以构建的一种 LLM 应用程序是智能体（agent）。
+
+There’s a lot of excitement around building agents because they can automate a wide range of tasks that were previously impossible.
+
+围绕智能体构建存在大量热情，因为它们可以自动化许多此前无法实现的广泛任务。
+
+In practice though, it is incredibly difficult to build systems that reliably execute on these tasks.
+
+但在实践中，构建能可靠执行这些任务的系统却异常困难。
+
+As we’ve worked with our users to put agents into production, we’ve learned that more control is often necessary.
+
+随着我们与用户合作将智能体投入生产环境，我们认识到往往需要更强的控制能力。
+
+You might need an agent to always call a specific tool first or use different prompts based on its state.
+
+你可能需要智能体始终优先调用某个特定工具，或根据其状态使用不同的提示词（prompt）。
+
+To tackle this problem, we’ve built [LangGraph](https://docs.langchain.com/oss/python/langgraph/overview) — a framework for building agent and multi-agent applications.
+
+为解决这一问题，我们构建了 [LangGraph](https://docs.langchain.com/oss/python/langgraph/overview) —— 一个用于构建智能体及多智能体应用程序的框架。
+
+Separate from the LangChain package, LangGraph’s core design philosophy is to help developers add better precision and control into agent workflows, suitable for the complexity of real-world systems.
+
+LangGraph 独立于 LangChain 包，其核心设计理念是帮助开发者在智能体工作流中加入更高精度与更强控制力，以适配真实世界系统的复杂性。
+
+## Course Structure 课程结构
+
+The course is structured as a set of modules, with each module focused on a particular theme related to LangGraph.
+
+本课程由一系列模块构成，每个模块聚焦 LangGraph 的某一特定主题。
+
+You will see a folder for each module, which contains a series of notebooks.
+
+你将看到每个模块对应一个文件夹，其中包含一系列笔记本（notebook）。
+
+A video will accompany each notebook to help walk through the concepts, but the notebooks are also stand-alone, meaning that they contain explanations and can be viewed independently of the videos.
+
+每个笔记本均配有配套视频，以辅助讲解相关概念；但这些笔记本本身也是独立可运行的，即内含完整说明，可脱离视频单独查看。
+
+Each module folder also contains a `studio` folder, which contains a set of graphs that can be loaded into [LangSmith Studio](https://docs.langchain.com/langsmith/quick-start-studio), our IDE for building LangGraph applications.
+
+每个模块文件夹还包含一个 `studio` 文件夹，其中存放一组图（graph），可加载至 [LangSmith Studio](https://docs.langchain.com/langsmith/quick-start-studio)（我们专为构建 LangGraph 应用而设计的集成开发环境 IDE）。
+
+## Setup 环境准备
 
 Before you begin, please follow the instructions in the `README` to create an environment and install dependencies.
 
-## Chat models
+开始学习前，请按 `README` 中的说明创建运行环境并安装依赖项。
 
-In this course, we'll use Chat Models, which take a sequence of messages as input and return messages as output. LangChain supports many models via [third-party integrations](https://docs.langchain.com/oss/python/integrations/chat). By default, the course will use  [ChatOpenAI](https://docs.langchain.com/oss/python/integrations/chat/openai) because it is both popular and performant. As noted, please ensure that you have an `OPENAI_API_KEY`.
+## Chat models 聊天模型
+
+In this course, we'll use Chat Models, which take a sequence of messages as input and return messages as output.
+
+本课程将使用聊天模型（Chat Models），其输入为消息序列，输出也为消息。
+
+LangChain supports many models via [third-party integrations](https://docs.langchain.com/oss/python/integrations/chat).
+
+LangChain 通过 [第三方集成](https://docs.langchain.com/oss/python/integrations/chat) 支持多种模型。
+
+By default, the course will use  [ChatOpenAI](https://docs.langchain.com/oss/python/integrations/chat/openai) because it is both popular and performant.
+
+默认情况下，本课程将使用 [ChatOpenAI](https://docs.langchain.com/oss/python/integrations/chat/openai)，因其兼具流行性与高性能。
+
+As noted, please ensure that you have an `OPENAI_API_KEY`.
+
+如前所述，请确保已设置 `OPENAI_API_KEY`。
 
 Let's check that your `OPENAI_API_KEY` is set and, if not, you will be asked to enter it.
+
+我们将检查你的 `OPENAI_API_KEY` 是否已设置；若未设置，系统将提示你输入。
+
 
 
 ```python
@@ -46,14 +110,52 @@ load_dotenv(find_dotenv(usecwd=True))
 _set_env("OPENAI_API_KEY")
 ```
 
-[Here](https://docs.langchain.com/oss/python/langchain/models) is a useful how-to for all the things that you can do with chat models, but we'll show a few highlights below. If you've run `pip install -r requirements.txt` as noted in the README, then you've installed the `langchain-openai` package. With this, we can instantiate our `ChatOpenAI` model object. You can see pricing for various models [here](https://openai.com/api/pricing/). The notebooks will default to `gpt-4o` because it offers a good balance of quality, price, and speed, but you can also opt for the lower-priced `gpt-3.5` series or more recent models.
+[Here](https://docs.langchain.com/oss/python/langchain/models) is a useful how-to for all the things that you can do with chat models, but we'll show a few highlights below.
 
-There are [a few standard parameters](https://docs.langchain.com/oss/python/langchain/models#parameters) that we can set with chat models. Two of the most common are:
+[此处](https://docs.langchain.com/oss/python/langchain/models) 提供了一份关于聊天模型所有可用功能的实用指南，但下方我们将展示其中几个重点功能。
+
+If you've run `pip install -r requirements.txt` as noted in the README, then you've installed the `langchain-openai` package.
+
+如 `README` 所述，若你已运行 `pip install -r requirements.txt`，则已安装 `langchain-openai` 包。
+
+With this, we can instantiate our `ChatOpenAI` model object.
+
+借助该包，我们可以实例化 `ChatOpenAI` 模型对象。
+
+You can see pricing for various models [here](https://openai.com/api/pricing/).
+
+各类模型的价格信息请参见 [此处](https://openai.com/api/pricing/)。
+
+The notebooks will default to `gpt-4o` because it offers a good balance of quality, price, and speed, but you can also opt for the lower-priced `gpt-3.5` series or more recent models.
+
+笔记本默认使用 `gpt-4o`，因其在质量、价格与速度之间取得了良好平衡；但你也可选择价格更低的 `gpt-3.5` 系列，或更新的模型。
+
+There are [a few standard parameters](https://docs.langchain.com/oss/python/langchain/models#parameters) that we can set with chat models.
+
+聊天模型支持 [若干标准参数](https://docs.langchain.com/oss/python/langchain/models#parameters)。
+
+Two of the most common are:
+
+其中最常用的两个参数是：
 
 * `model`: the name of the model
-* `temperature`: the sampling temperature
+  - `model`：模型名称
 
-`Temperature` controls the randomness or creativity of the model's output where low temperature (close to 0) is more deterministic and focused outputs. This is good for tasks requiring accuracy or factual responses. High temperature (close to 1) is good for creative tasks or generating varied responses. 
+* `temperature`: the sampling temperature
+  - `temperature`：采样温度
+
+`Temperature` controls the randomness or creativity of the model's output where low temperature (close to 0) is more deterministic and focused outputs.
+
+`temperature` 控制模型输出的随机性或创造性：较低温度（接近 0）使输出更确定、更聚焦。
+
+This is good for tasks requiring accuracy or factual responses.
+
+这适用于对准确性或事实性响应要求较高的任务。
+
+High temperature (close to 1) is good for creative tasks or generating varied responses.
+
+较高温度（接近 1）则适用于创意类任务或需生成多样化响应的场景。
+
 
 
 ```python
@@ -63,12 +165,32 @@ gpt4o_chat = ChatOpenAI(model=os.getenv("OPENAI_MODEL", "qwen-plus"), base_url=o
 gpt35_chat = ChatOpenAI(model=os.getenv("OPENAI_SECONDARY_MODEL", os.getenv("OPENAI_MODEL", "qwen-plus")), base_url=os.getenv("OPENAI_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"), temperature=0)
 ```
 
-Chat models in LangChain have a number of [default methods](https://reference.langchain.com/python/langchain_core/runnables). For the most part, we'll be using:
+Chat models in LangChain have a number of [default methods](https://reference.langchain.com/python/langchain_core/runnables).
+
+LangChain 中的聊天模型提供了若干 [默认方法](https://reference.langchain.com/python/langchain_core/runnables)。
+
+For the most part, we'll be using:
+
+大多数情况下，我们将使用：
 
 * [stream](https://docs.langchain.com/oss/python/langchain/models#stream): stream back chunks of the response
-* [invoke](https://docs.langchain.com/oss/python/langchain/models#invoke): call the chain on an input
+  - [stream](https://docs.langchain.com/oss/python/langchain/models#stream)：流式返回响应的分块内容
 
-And, as mentioned, chat models take [messages](https://docs.langchain.com/oss/python/langchain/messages) as input. Messages have a role (that describes who is saying the message) and a content property. We'll be talking a lot more about this later, but here let's just show the basics.
+* [invoke](https://docs.langchain.com/oss/python/langchain/models#invoke): call the chain on an input
+  - [invoke](https://docs.langchain.com/oss/python/langchain/models#invoke)：在输入上运行链（chain）
+
+And, as mentioned, chat models take [messages](https://docs.langchain.com/oss/python/langchain/messages) as input.
+
+如前所述，聊天模型以 [消息](https://docs.langchain.com/oss/python/langchain/messages) 作为输入。
+
+Messages have a role (that describes who is saying the message) and a content property.
+
+每条消息具有一个角色（role，用于标识消息发送者）和一个内容（content）属性。
+
+We'll be talking a lot more about this later, but here let's just show the basics.
+
+我们将在后续深入探讨此话题，此处仅先介绍基本用法。
+
 
 
 ```python
@@ -91,7 +213,17 @@ gpt4o_chat.invoke(messages)
 
 
 
-We get an `AIMessage` response. Also, note that we can just invoke a chat model with a string. When a string is passed in as input, it is converted to a `HumanMessage` and then passed to the underlying model.
+We get an `AIMessage` response.
+
+我们得到一个 `AIMessage` 响应。
+
+Also, note that we can just invoke a chat model with a string.
+
+此外请注意，我们也可以直接用字符串调用聊天模型。
+
+When a string is passed in as input, it is converted to a `HumanMessage` and then passed to the underlying model.
+
+当传入字符串作为输入时，它会被自动转换为 `HumanMessage`，再传递给底层模型。
 
 
 
@@ -118,14 +250,29 @@ gpt35_chat.invoke("hello world")
 
 
 
-The interface is consistent across all chat models and models are typically initialized once at the start up each notebooks. 
+The interface is consistent across all chat models and models are typically initialized once at the start up each notebooks.
+
+该接口在所有聊天模型中保持一致，且模型通常在每个笔记本启动时初始化一次。
 
 So, you can easily switch between models without changing the downstream code if you have strong preference for another provider.
 
+因此，如果你强烈偏好其他服务商，只需更换模型即可，无需修改下游代码。
 
-## Search Tools
 
-You'll also see [Tavily](https://tavily.com/) in the README, which is a search engine optimized for LLMs and RAG, aimed at efficient, quick, and persistent search results. As mentioned, it's easy to sign up and offers a generous free tier. Some lessons (in Module 4) will use Tavily by default but, of course, other search tools can be used if you want to modify the code for yourself.
+## Search Tools 搜索工具
+
+You'll also see [Tavily](https://tavily.com/) in the README, which is a search engine optimized for LLMs and RAG, aimed at efficient, quick, and persistent search results.
+
+你还会在 `README` 中看到 [Tavily](https://tavily.com/)，这是一个专为 LLM 和 RAG 优化的搜索引擎，旨在提供高效、快速且持久的搜索结果。
+
+As mentioned, it's easy to sign up and offers a generous free tier.
+
+如前所述，注册十分便捷，且提供 generous 免费额度。
+
+Some lessons (in Module 4) will use Tavily by default but, of course, other search tools can be used if you want to modify the code for yourself.
+
+部分课程（模块 4 中）将默认使用 Tavily，但当然，你也可以根据自身需求修改代码，改用其他搜索工具。
+
 
 
 ```python
@@ -168,8 +315,6 @@ search_docs
       'score': 0.9467988,
       'raw_content': None,
       'id': '37df7e-02'}]
-
-
 
 
 ```python

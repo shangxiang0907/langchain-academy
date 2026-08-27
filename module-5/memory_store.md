@@ -1,22 +1,37 @@
-# Chatbot with Memory
+# Chatbot with Memory 带记忆功能的聊天机器人
 
-## Review
+## Review 复习
 
-[Memory](https://pmc.ncbi.nlm.nih.gov/articles/PMC10410470/) is a cognitive function that allows people to store, retrieve, and use information to understand their present and future. 
+[Memory](https://pmc.ncbi.nlm.nih.gov/articles/PMC10410470/) is a cognitive function that allows people to store, retrieve, and use information to understand their present and future.
+
+[记忆](https://pmc.ncbi.nlm.nih.gov/articles/PMC10410470/) 是一种认知功能，使人们能够存储、检索和使用信息，以理解当下与未来。
 
 There are [various long-term memory types](https://docs.langchain.com/oss/python/concepts/memory#memory-types) that can be used in AI applications.
 
-## Goals
+存在多种[长期记忆类型](https://docs.langchain.com/oss/python/concepts/memory#memory-types)，可用于人工智能应用。
+
+## Goals 目标
 
 Here, we'll introduce the [LangGraph Memory Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore) as a way to save and retrieve long-term memories.
 
+此处，我们将介绍 [LangGraph Memory Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore)，作为一种保存与检索长期记忆的方式。
+
 We'll build a chatbot that uses both `short-term (within-thread)` and `long-term (across-thread)` memory.
- 
-We'll focus on long-term [semantic memory](https://docs.langchain.com/oss/python/concepts/memory#semantic-memory), which will be facts about the user. 
+
+我们将构建一个同时使用 `短期（线程内）` 和 `长期（跨线程）` 记忆的聊天机器人。
+
+We'll focus on long-term [semantic memory](https://docs.langchain.com/oss/python/concepts/memory#semantic-memory), which will be facts about the user.
+
+我们将重点关注长期[语义记忆](https://docs.langchain.com/oss/python/concepts/memory#semantic-memory)，即关于用户的事实性信息。
 
 These long-term memories will be used to create a personalized chatbot that can remember facts about the user.
 
+这些长期记忆将用于创建一个个性化聊天机器人，使其能够记住有关用户的事实。
+
 It will save memory ["in the hot path"](https://docs.langchain.com/oss/python/concepts/memory#writing-memories), as the user is chatting with it.
+
+它将在用户与其聊天时，[“在热路径中”](https://docs.langchain.com/oss/python/concepts/memory#writing-memories) 保存记忆。
+
 
 
 ```python
@@ -25,6 +40,9 @@ It will save memory ["in the hot path"](https://docs.langchain.com/oss/python/co
 ```
 
 We'll use [LangSmith](https://docs.langchain.com/langsmith/home) for [tracing](https://docs.langchain.com/langsmith/observability-concepts).
+
+我们将使用 [LangSmith](https://docs.langchain.com/langsmith/home) 进行[追踪](https://docs.langchain.com/langsmith/observability-concepts)。
+
 
 
 ```python
@@ -39,11 +57,16 @@ os.environ["LANGSMITH_TRACING"] = "true"
 os.environ["LANGSMITH_PROJECT"] = "langchain-academy"
 ```
 
-## Introduction to the LangGraph Store
+## Introduction to the LangGraph Store LangGraph Store 简介
 
 The  [LangGraph Memory Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore) provides a way to store and retrieve information *across threads* in LangGraph.
 
+[LangGraph Memory Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore) 提供了一种在 LangGraph 中*跨线程*存储与检索信息的方式。
+
 This is an  [open source base class](https://blog.langchain.com/launching-long-term-memory-support-in-langgraph/) for persistent `key-value` stores.
+
+这是一个[开源基类](https://blog.langchain.com/launching-long-term-memory-support-in-langgraph/)，用于持久化的 `键值（key-value）` 存储。
+
 
 
 ```python
@@ -54,13 +77,23 @@ in_memory_store = InMemoryStore()
 
 When storing objects (e.g., memories) in the [Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore), we provide:
 
+向 [Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore) 中存储对象（例如记忆）时，我们需要提供：
+
 - The `namespace` for the object, a tuple (similar to directories)
+  - 对象的 `命名空间（namespace）`，为一个元组（类似于目录结构）
+
 - the object `key` (similar to filenames)
+  - 对象的 `键（key）`（类似于文件名）
+
 - the object `value` (similar to file contents)
+  - 对象的 `值（value）`（类似于文件内容）
 
 We use the [put](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore.put) method to save an object to the store by `namespace` and `key`.
 
+我们使用 [put](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore.put) 方法，按 `命名空间` 和 `键` 将对象保存至存储中。
+
 ![langgraph_store.png](memory_store_files/6281b4e3-4930-467e-83ce-ba1aa837ca16.png)
+
 
 
 ```python
@@ -80,7 +113,12 @@ in_memory_store.put(namespace_for_memory, key, value)
 
 We use [search](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore.search) to retrieve objects from the store by `namespace`.
 
+我们使用 [search](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore.search) 方法，按 `命名空间` 从存储中检索对象。
+
 This returns a list.
+
+该方法返回一个列表。
+
 
 
 ```python
@@ -124,6 +162,9 @@ print(memories[0].key, memories[0].value)
 
 We can also use [get](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore.get) to retrieve an object by `namespace` and `key`.
 
+我们还可以使用 [get](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore.get) 方法，按 `命名空间` 和 `键` 检索单个对象。
+
+
 
 ```python
 # Get the memory by namespace and key
@@ -142,12 +183,18 @@ memory.dict()
 
 
 
-## Chatbot with long-term memory
+## Chatbot with long-term memory 带长期记忆的聊天机器人
 
 We want a chatbot that [has two types of memory](https://docs.google.com/presentation/d/181mvjlgsnxudQI6S3ritg9sooNyu4AcLLFH1UK0kIuk/edit#slide=id.g30eb3c8cf10_0_156):
 
+我们希望构建一个[具备两种记忆类型](https://docs.google.com/presentation/d/181mvjlgsnxudQI6S3ritg9sooNyu4AcLLFH1UK0kIuk/edit#slide=id.g30eb3c8cf10_0_156)的聊天机器人：
+
 1. `Short-term (within-thread) memory`: Chatbot can persist conversational history and / or allow interruptions in a chat session.
+  - `短期（线程内）记忆`：聊天机器人可在一次聊天会话中持续保存对话历史，或支持中断操作。
+
 2. `Long-term (cross-thread) memory`: Chatbot can remember information about a specific user *across all chat sessions*.
+  - `长期（跨线程）记忆`：聊天机器人可跨所有聊天会话，记住特定用户的有关信息。
+
 
 
 ```python
@@ -157,15 +204,27 @@ load_dotenv(find_dotenv(usecwd=True))
 _set_env("OPENAI_API_KEY")
 ```
 
-For `short-term memory`, we'll use a [checkpointer](https://docs.langchain.com/oss/python/langgraph/persistence#checkpointer-libraries). 
+For `short-term memory`, we'll use a [checkpointer](https://docs.langchain.com/oss/python/langgraph/persistence#checkpointer-libraries).
+
+对于 `短期记忆`，我们将使用 [检查点器（checkpointer）](https://docs.langchain.com/oss/python/langgraph/persistence#checkpointer-libraries)。
 
 See Module 2 and our [conceptual docs](https://docs.langchain.com/oss/python/langgraph/persistence) for more on checkpointers, but in summary:
 
+更多关于检查点器的内容，请参阅模块 2 及我们的[概念文档](https://docs.langchain.com/oss/python/langgraph/persistence)，简而言之：
+
 * They write the graph state at each step to a thread.
+  - 它们在每一步都将图状态写入线程。
+
 * They persist the chat history in the thread.
+  - 它们在线程中持久化聊天历史。
+
 * They allow the graph to be interrupted and / or resumed from any step in the thread.
- 
+  - 它们允许图从线程中的任意步骤被中断和/或恢复。
+
 And, for `long-term memory`, we'll use the [LangGraph Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore) as introduced above.
+
+而对于 `长期记忆`，我们将使用上文介绍的 [LangGraph Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore)。
+
 
 
 ```python
@@ -179,11 +238,20 @@ model = ChatOpenAI(model=os.getenv("OPENAI_MODEL", "qwen-plus"), base_url=os.get
 
 The chat history will be saved to short-term memory using the checkpointer.
 
-The chatbot will reflect on the chat history. 
+聊天历史将通过检查点器保存至短期记忆。
+
+The chatbot will reflect on the chat history.
+
+聊天机器人将对聊天历史进行反思。
 
 It will then create and save a memory to the [LangGraph Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore).
 
+然后，它将创建一条记忆并保存至 [LangGraph Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore)。
+
 This memory is accessible in future chat sessions to personalize the chatbot's responses.
+
+该记忆可在未来的聊天会话中被访问，从而实现聊天机器人响应的个性化。
+
 
 
 ```python
@@ -306,10 +374,18 @@ display(Image(graph.get_graph(xray=1).draw_mermaid_png()))
 
 When we interact with the chatbot, we supply two things:
 
-1. `Short-term (within-thread) memory`: A `thread ID` for persisting the chat history.
-2. `Long-term (cross-thread) memory`: A `user ID` to namespace long-term memories to the user.
+当我们与聊天机器人交互时，需提供两样东西：
 
-Let's see how these work together in practice. 
+1. `Short-term (within-thread) memory`: A `thread ID` for persisting the chat history.
+  - `短期（线程内）记忆`：一个用于持久化聊天历史的 `线程 ID`。
+
+2. `Long-term (cross-thread) memory`: A `user ID` to namespace long-term memories to the user.
+  - `长期（跨线程）记忆`：一个用于将长期记忆按用户命名空间隔离的 `用户 ID`。
+
+Let's see how these work together in practice.
+
+让我们在实践中看看它们如何协同工作。
+
 
 
 ```python
@@ -353,9 +429,16 @@ for chunk in graph.stream({"messages": input_messages}, config, stream_mode="val
 
 We're using the `MemorySaver` checkpointer for within-thread memory.
 
+我们正在使用 `MemorySaver` 检查点器来处理线程内记忆。
+
 This saves the chat history to the thread.
 
+该检查点器将聊天历史保存至线程。
+
 We can look at the chat history saved to the thread.
+
+我们可以查看已保存至线程的聊天历史。
+
 
 
 ```python
@@ -379,7 +462,9 @@ for m in state["messages"]:
     That sounds like a great way to explore the city, Lance! San Francisco has some beautiful routes and views. Do you have a favorite trail or area you like to bike in?
 
 
-Recall that we compiled the graph with our the store: 
+Recall that we compiled the graph with our the store:
+
+请回顾一下，我们已使用该存储编译了图：
 
 ```python
 across_thread_memory = InMemoryStore()
@@ -387,7 +472,12 @@ across_thread_memory = InMemoryStore()
 
 And, we added a node to the graph (`write_memory`) that reflects on the chat history and saves a memory to the store.
 
+并且，我们在图中添加了一个节点（`write_memory`），用于反思聊天历史并将记忆保存至存储。
+
 We can to see if the memory was saved to the store.
+
+我们可以验证该记忆是否已成功保存至存储。
+
 
 
 ```python
@@ -411,7 +501,12 @@ existing_memory.dict()
 
 Now, let's kick off a *new thread* with the *same user ID*.
 
+现在，让我们用*相同的用户 ID*启动一个*新线程*。
+
 We should see that the chatbot remembered the user's profile and used it to personalize the response.
+
+我们应该能看到聊天机器人记住了用户的档案，并据此个性化其响应。
+
 
 
 ```python
@@ -476,16 +571,20 @@ for chunk in graph.stream({"messages": input_messages}, config, stream_mode="val
     These spots should provide a delightful treat after your biking adventures. Enjoy your ride and your croissant!
 
 
-## Viewing traces in LangSmith
+## Viewing traces in LangSmith 在 LangSmith 中查看追踪记录
 
 We can see that the memories are retrieved from the store and supplied as part of the system prompt, as expected:
+
+我们可以看到，记忆已按预期从存储中检索，并作为系统提示的一部分提供：
+
+https://smith.langchain.com/public/10268d64-82ff-434e-ac02-4afa5cc15432/r
 
 https://smith.langchain.com/public/10268d64-82ff-434e-ac02-4afa5cc15432/r
 
 ## Studio
 
-We can also interact with our chatbot in Studio. 
+We can also interact with our chatbot in Studio.
+
+我们还可以在 Studio 中与我们的聊天机器人进行交互。
 
 ![Screenshot 2024-10-28 at 10.08.27 AM.png](memory_store_files/afa216f7-4b67-4783-82af-c319e0f512ac.png)
-
-

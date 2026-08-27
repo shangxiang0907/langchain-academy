@@ -1,18 +1,30 @@
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-3/streaming-interruption.ipynb) [![Open in LangChain Academy](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/58239464-lesson-1-streaming)
 
-# Streaming
+[![在 Colab 中打开](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-3/streaming-interruption.ipynb) [![在 LangChain 学院中打开](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/58239464-lesson-1-streaming)
 
-## Review
+
+# Streaming 流式传输
+
+## Review 复习
 
 In module 2, covered a few ways to customize graph state and memory.
- 
-We built up to a Chatbot with external memory that can sustain long-running conversations. 
 
-## Goals
+在模块 2 中，我们介绍了几种自定义图状态和内存的方法。
 
-This module will dive into `human-in-the-loop`, which builds on memory and allows users to interact directly with graphs in various ways. 
+We built up to a Chatbot with external memory that can sustain long-running conversations.
+
+我们构建了一个具备外部内存的聊天机器人，可支持长时间运行的对话。
+
+## Goals 学习目标
+
+This module will dive into `human-in-the-loop`, which builds on memory and allows users to interact directly with graphs in various ways.
+
+本模块将深入探讨 `human-in-the-loop`（人在环路中），它基于内存机制，允许用户以多种方式直接与图进行交互。
 
 To set the stage for `human-in-the-loop`, we'll first dive into streaming, which provides several ways to visualize graph output (e.g., node state or chat model tokens) over the course of execution.
+
+为 `human-in-the-loop` 做好铺垫，我们将首先深入流式传输，它提供了多种方式来可视化图执行过程中的输出（例如节点状态或聊天模型生成的 token）。
+
 
 
 ```python
@@ -20,11 +32,16 @@ To set the stage for `human-in-the-loop`, we'll first dive into streaming, which
 %pip install --quiet -U langgraph langchain_openai langgraph_sdk
 ```
 
-## Streaming
+## Streaming 流式传输
 
 LangGraph is built with [first class support for streaming](https://docs.langchain.com/oss/python/langgraph/streaming).
 
-Let's set up our Chatbot from Module 2, and show various way to stream outputs from the graph during execution. 
+LangGraph 内置了对[流式传输的一等支持](https://docs.langchain.com/oss/python/langgraph/streaming)。
+
+Let's set up our Chatbot from Module 2, and show various way to stream outputs from the graph during execution.
+
+让我们复用模块 2 中构建的聊天机器人，并演示在图执行过程中流式传输输出的多种方式。
+
 
 
 ```python
@@ -40,7 +57,18 @@ load_dotenv(find_dotenv(usecwd=True))
 _set_env("OPENAI_API_KEY")
 ```
 
-Note that we use `RunnableConfig` with `call_model` to enable token-wise streaming. This is [only needed with python < 3.11](https://langchain-ai.github.io/langgraph/how-tos/streaming-tokens/). We include in case you are running this notebook in CoLab, which will use python 3.x. 
+Note that we use `RunnableConfig` with `call_model` to enable token-wise streaming.
+
+注意：我们使用带 `call_model` 的 `RunnableConfig` 来启用逐 token 流式传输。
+
+This is [only needed with python < 3.11](https://langchain-ai.github.io/langgraph/how-tos/streaming-tokens/).
+
+这[仅在 Python < 3.11 时需要](https://langchain-ai.github.io/langgraph/how-tos/streaming-tokens/)。
+
+We include in case you are running this notebook in CoLab, which will use python 3.x.
+
+我们包含此配置，以防你在 Colab 中运行该笔记本（Colab 使用的是 Python 3.x）。
+
 
 
 ```python
@@ -145,24 +173,40 @@ display(Image(graph.get_graph().draw_mermaid_png()))
     
 
 
-### Streaming full state
+### Streaming full state 流式传输完整状态
 
 Now, let's talk about ways to [stream our graph state](https://docs.langchain.com/oss/python/langgraph/streaming#supported-stream-modes).
 
-`.stream` and `.astream` are sync and async methods for streaming back results. 
- 
+现在，我们来讨论[流式传输图状态](https://docs.langchain.com/oss/python/langgraph/streaming#supported-stream-modes)的几种方式。
+
+`.stream` and `.astream` are sync and async methods for streaming back results.
+
+`.stream` 和 `.astream` 是用于同步和异步流式返回结果的方法。
+
 LangGraph supports a few [different streaming modes](https://docs.langchain.com/oss/python/langgraph/streaming#stream-graph-state) for graph state.
- 
+
+LangGraph 支持若干种[不同的流式传输模式](https://docs.langchain.com/oss/python/langgraph/streaming#stream-graph-state)，用于图状态。
+
 * `values`: This streams the full state of the graph after each node is called.
+  - `values`：每次调用节点后，流式传输图的完整状态。
+
 * `updates`: This streams updates to the state of the graph after each node is called.
+  - `updates`：每次调用节点后，流式传输图状态的更新。
 
 ![values_vs_updates.png](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66dbaf892d24625a201744e5_streaming1.png)
 
 Let's look at `stream_mode="updates"`.
 
+我们来看 `stream_mode="updates"`。
+
 Because we stream with `updates`, we only see updates to the state after node in the graph is run.
 
+由于我们使用 `updates` 模式流式传输，因此仅能看到图中每个节点运行后状态的更新。
+
 Each `chunk` is a dict with `node_name` as the key and the updated state as the value.
+
+每个 `chunk` 是一个字典，其键为 `node_name`，值为更新后的状态。
+
 
 
 ```python
@@ -179,6 +223,9 @@ for chunk in graph.stream({"messages": [HumanMessage(content="hi! I'm Lance")]},
 
 Let's now just print the state update.
 
+现在，我们仅打印状态更新。
+
+
 
 ```python
 # Start conversation
@@ -193,7 +240,12 @@ for chunk in graph.stream({"messages": [HumanMessage(content="hi! I'm Lance")]},
 
 Now, we can see `stream_mode="values"`.
 
+接下来，我们来看 `stream_mode="values"`。
+
 This is the `full state` of the graph after the `conversation` node is called.
+
+这是 `conversation` 节点被调用后图的`完整状态`。
+
 
 
 ```python
@@ -221,22 +273,40 @@ for event in graph.stream({"messages": [input_message]}, config, stream_mode="va
     ---------------------------------------------------------------------------
 
 
-### Streaming tokens
+### Streaming tokens 流式传输 token
 
 We often want to stream more than graph state.
 
+我们通常希望流式传输的内容不仅限于图状态。
+
 In particular, with chat model calls it is common to stream the tokens as they are generated.
+
+特别是，在调用聊天模型时，常需流式传输其逐个生成的 token。
 
 We can do this [using the `.astream_events` method](https://docs.langchain.com/oss/python/langchain/models#advanced-streaming-topics:streaming-events), which streams back events as they happen inside nodes!
 
+我们可以[使用 `.astream_events` 方法](https://docs.langchain.com/oss/python/langchain/models#advanced-streaming-topics:streaming-events)实现这一点，该方法会在节点内部事件发生时实时流式返回事件！
+
 Each event is a dict with a few keys:
- 
+
+每个事件是一个包含若干键的字典：
+
 * `event`: This is the type of event that is being emitted. 
+  - `event`：正在发出的事件类型。
+
 * `name`: This is the name of event.
+  - `name`：事件的名称。
+
 * `data`: This is the data associated with the event.
+  - `data`：与该事件关联的数据。
+
 * `metadata`: Contains`langgraph_node`, the node emitting the event.
+  - `metadata`：包含 `langgraph_node`，即发出该事件的节点。
 
 Let's have a look.
+
+我们来看一下。
+
 
 
 ```python
@@ -669,9 +739,16 @@ async for event in graph.astream_events({"messages": [input_message]}, config, v
 
 The central point is that tokens from chat models within your graph have the `on_chat_model_stream` type.
 
+关键在于，图内聊天模型生成的 token 具有 `on_chat_model_stream` 类型。
+
 We can use `event['metadata']['langgraph_node']` to select the node to stream from.
 
-And we can use `event['data']` to get the actual data for each event, which in this case is an `AIMessageChunk`. 
+我们可以使用 `event['metadata']['langgraph_node']` 来选择要从中流式传输的节点。
+
+And we can use `event['data']` to get the actual data for each event, which in this case is an `AIMessageChunk`.
+
+我们可以使用 `event['data']` 获取每个事件的实际数据，此处为 `AIMessageChunk`。
+
 
 
 ```python
@@ -1074,6 +1151,9 @@ async for event in graph.astream_events({"messages": [input_message]}, config, v
 
 As you see above, just use the `chunk` key to get the `AIMessageChunk`.
 
+如上所示，只需使用 `chunk` 键即可获取 `AIMessageChunk`。
+
+
 
 ```python
 config = {"configurable": {"thread_id": "5"}}
@@ -1093,18 +1173,44 @@ async for event in graph.astream_events({"messages": [input_message]}, config, v
     
     |The| |49|ers| have| a| passionate| fan| base| and| a| stor|ied| rivalry| with| teams| like| the| Dallas| Cowboys|,| Green| Bay| Packers|,| and| Seattle| Seahawks|.| The| team's| success| in| the| |198|0|s| and| |199|0|s|,| particularly| under| the| leadership| of| Bill| Walsh| and| George| Se|if|ert|,| helped| establish| them| as| one| of| the| premier| franchises| in| the| NFL|.||||
 
-### Streaming with LangGraph API
+### Streaming with LangGraph API 使用 LangGraph API 进行流式传输
 
 **⚠️ Notice**
 
-Since filming these videos, we've updated Studio so that it can now be run locally and accessed through your browser. This is the preferred way to run Studio instead of using the Desktop App shown in the video. It is now called _LangSmith Studio_ instead of _LangGraph Studio_. Detailed setup instructions are available in the "Getting Setup" guide at the start of the course. You can find a description of Studio [here](https://docs.langchain.com/langsmith/studio), and specific details for local deployment [here](https://docs.langchain.com/langsmith/quick-start-studio#local-development-server).  
+⚠️ 注意
+
+Since filming these videos, we've updated Studio so that it can now be run locally and accessed through your browser.
+
+自录制这些视频以来，我们已更新 Studio，使其现在可本地运行并通过浏览器访问。
+
+This is the preferred way to run Studio instead of using the Desktop App shown in the video.
+
+这是运行 Studio 的首选方式，而非视频中展示的桌面应用。
+
+It is now called _LangSmith Studio_ instead of _LangGraph Studio_.
+
+它现在被称为 _LangSmith Studio_，而非 _LangGraph Studio_。
+
+Detailed setup instructions are available in the "Getting Setup" guide at the start of the course.
+
+详细设置说明请参阅本课程开头的“开始设置”指南。
+
+You can find a description of Studio [here](https://docs.langchain.com/langsmith/studio), and specific details for local deployment [here](https://docs.langchain.com/langsmith/quick-start-studio#local-development-server).
+
+您可在此处[查看 Studio 的介绍](https://docs.langchain.com/langsmith/studio)，并在此处[查阅本地部署的具体细节](https://docs.langchain.com/langsmith/quick-start-studio#local-development-server)。
+
 To start the local development server, run the following command in your terminal in the `/studio` directory in this module:
+
+要在本地启动开发服务器，请在本模块的 `/studio` 目录下于终端中运行以下命令：
 
 ```
 langgraph dev
 ```
 
 You should see the following output:
+
+您应看到如下输出：
+
 ```
 - 🚀 API: http://127.0.0.1:2024
 - 🎨 Studio UI: https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024
@@ -1113,7 +1219,12 @@ You should see the following output:
 
 Open your browser and navigate to the **Studio UI** URL shown above.
 
-The LangGraph API  [supports editing graph state](https://docs.langchain.com/langsmith/add-human-in-the-loop). 
+打开浏览器并导航至上方显示的 **Studio UI** URL。
+
+The LangGraph API  [supports editing graph state](https://docs.langchain.com/langsmith/add-human-in-the-loop).
+
+LangGraph API [支持编辑图状态](https://docs.langchain.com/langsmith/add-human-in-the-loop)。
+
 
 
 ```python
@@ -1135,6 +1246,9 @@ assistants = await client.assistants.search()
 
 Let's [stream `values`](https://docs.langchain.com/oss/python/langgraph/streaming#stream-graph-state), like before.
 
+让我们像之前一样[流式传输 `values`](https://docs.langchain.com/oss/python/langgraph/streaming#stream-graph-state)。
+
+
 
 ```python
 # Create a new thread
@@ -1155,10 +1269,16 @@ async for event in client.runs.stream(thread["thread_id"],
     StreamPart(event='values', data={'messages': [{'content': 'Multiply 2 and 3', 'additional_kwargs': {}, 'response_metadata': {}, 'type': 'human', 'name': None, 'id': '9aaa247f-1e6e-4451-af25-ac678fe46d82'}, {'content': '', 'additional_kwargs': {'refusal': None}, 'response_metadata': {'token_usage': {'completion_tokens': 17, 'prompt_tokens': 134, 'total_tokens': 151, 'completion_tokens_details': {'accepted_prediction_tokens': 0, 'audio_tokens': 0, 'reasoning_tokens': 0, 'rejected_prediction_tokens': 0}, 'prompt_tokens_details': {'audio_tokens': 0, 'cached_tokens': 0}}, 'model_provider': 'openai', 'model_name': 'gpt-4o-2024-08-06', 'system_fingerprint': 'fp_eb3c3cb84d', 'id': 'chatcmpl-CSqw4HhOXHahA4tIr4mIdEhQB1QB4', 'service_tier': 'default', 'finish_reason': 'tool_calls', 'logprobs': None}, 'type': 'ai', 'name': None, 'id': 'lc_run--4a3794f6-52c3-41b5-9620-1710d6e8392d-0', 'tool_calls': [{'name': 'multiply', 'args': {'a': 2, 'b': 3}, 'id': 'call_3sCWZZ89AoUe91MYc3ZBtJ0P', 'type': 'tool_call'}], 'invalid_tool_calls': [], 'usage_metadata': {'input_tokens': 134, 'output_tokens': 17, 'total_tokens': 151, 'input_token_details': {'audio': 0, 'cache_read': 0}, 'output_token_details': {'audio': 0, 'reasoning': 0}}}, {'content': '6', 'additional_kwargs': {}, 'response_metadata': {}, 'type': 'tool', 'name': 'multiply', 'id': 'f05da6b3-27be-4896-967a-3ff60aa06d85', 'tool_call_id': 'call_3sCWZZ89AoUe91MYc3ZBtJ0P', 'artifact': None, 'status': 'success'}, {'content': 'The result of multiplying 2 and 3 is 6.', 'additional_kwargs': {'refusal': None}, 'response_metadata': {'token_usage': {'completion_tokens': 14, 'prompt_tokens': 159, 'total_tokens': 173, 'completion_tokens_details': {'accepted_prediction_tokens': 0, 'audio_tokens': 0, 'reasoning_tokens': 0, 'rejected_prediction_tokens': 0}, 'prompt_tokens_details': {'audio_tokens': 0, 'cached_tokens': 0}}, 'model_provider': 'openai', 'model_name': 'gpt-4o-2024-08-06', 'system_fingerprint': 'fp_eb3c3cb84d', 'id': 'chatcmpl-CSqw4xk8t3sPODL5beks5TlJBozgB', 'service_tier': 'default', 'finish_reason': 'stop', 'logprobs': None}, 'type': 'ai', 'name': None, 'id': 'lc_run--33a25ab0-f748-4c7f-a086-d9249e25fdc0-0', 'tool_calls': [], 'invalid_tool_calls': [], 'usage_metadata': {'input_tokens': 159, 'output_tokens': 14, 'total_tokens': 173, 'input_token_details': {'audio': 0, 'cache_read': 0}, 'output_token_details': {'audio': 0, 'reasoning': 0}}}]})
 
 
-The streamed objects have: 
+The streamed objects have:
+
+流式传输的对象包含：
 
 * `event`: Type
+  - `event`：类型
+
 * `data`: State
+  - `data`：状态
+
 
 
 ```python
@@ -1185,14 +1305,26 @@ async for event in client.runs.stream(thread["thread_id"], assistant_id="agent",
 
 There are some new streaming mode that are only supported via the API.
 
+有一些新的流式传输模式仅通过 API 支持。
+
 For example, we can  [use `messages` mode](https://docs.langchain.com/oss/python/langgraph/streaming#supported-stream-modes) to better handle the above case!
+
+例如，我们可以[使用 `messages` 模式](https://docs.langchain.com/oss/python/langgraph/streaming#supported-stream-modes)更好地处理上述情况！
 
 This mode currently assumes that you have a `messages` key in your graph, which is a list of messages.
 
+该模式当前假设您的图中存在一个 `messages` 键，其值为消息列表。
+
 All events emitted using `messages` mode have two attributes:
 
+所有使用 `messages` 模式发出的事件均具有两个属性：
+
 * `event`: This is the name of the event
+  - `event`：事件名称
+
 * `data`: This is data associated with the event
+  - `data`：与此事件关联的数据
+
 
 
 ```python
@@ -1242,17 +1374,29 @@ async for event in client.runs.stream(thread["thread_id"],
     messages/partial
 
 
-We can see a few events: 
+We can see a few events:
+
+我们可以看到若干事件：
 
 * `metadata`: metadata about the run
+  - `metadata`：关于该运行的元数据
+
 * `messages/complete`: fully formed message 
+  - `messages/complete`：已完整构建的消息
+
 * `messages/partial`: chat model tokens
+  - `messages/partial`：聊天模型生成的 token
 
 <!--You can dig further into the types [~here~](https://langchain-ai.github.io/langgraph/cloud/concepts/api/#modemessages) [here](https://docs.langchain.com/oss/python/langgraph/concepts/langgraph_server). -->
 
-Now, let's show how to stream these messages. 
+Now, let's show how to stream these messages.
+
+接下来，我们演示如何流式传输这些消息。
 
 We'll define a helper function for better formatting of the tool calls in messages.
+
+我们将定义一个辅助函数，以更好地格式化消息中的工具调用。
+
 
 
 ```python

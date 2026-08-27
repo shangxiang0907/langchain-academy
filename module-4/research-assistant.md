@@ -1,48 +1,103 @@
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-4/research-assistant.ipynb) [![Open in LangChain Academy](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/58239974-lesson-4-research-assistant)
 
-# Research Assistant
+[![在 Colab 中打开](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-4/research-assistant.ipynb) [![在 LangChain 学院中打开](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/58239974-lesson-4-research-assistant)
 
-## Review
+
+# Research Assistant 研究助手
+
+## Review 回顾
 
 We've covered a few major LangGraph themes:
 
+我们已涵盖若干重要的 LangGraph 主题：
+
 * Memory
+  - 记忆
+
 * Human-in-the-loop
+  - 人在环路（Human-in-the-loop）
+
 * Controllability
+  - 可控性
 
-Now, we'll bring these ideas together to tackle one of AI's most popular applications: research automation. 
+Now, we'll bring these ideas together to tackle one of AI's most popular applications: research automation.
 
-Research is often laborious work offloaded to analysts. AI has considerable potential to assist with this.
+接下来，我们将整合这些理念，以应对人工智能领域最受欢迎的应用之一：研究自动化。
 
-However, research demands customization: raw LLM outputs are often poorly suited for real-world decision-making workflows. 
+Research is often laborious work offloaded to analysts.
+
+研究工作通常繁重，常被交由分析师承担。
+
+AI has considerable potential to assist with this.
+
+AI 在辅助此类工作方面具有巨大潜力。
+
+However, research demands customization: raw LLM outputs are often poorly suited for real-world decision-making workflows.
+
+然而，研究需要定制化：原始 LLM 输出往往难以直接适用于现实世界的决策工作流。
 
 Customized, AI-based [research and report generation](https://jxnl.co/writing/2024/06/05/predictions-for-the-future-of-rag/#reports-over-rag) workflows are a promising way to address this.
 
-## Goal
+定制化的、基于 AI 的[研究与报告生成](https://jxnl.co/writing/2024/06/05/predictions-for-the-future-of-rag/#reports-over-rag)工作流是解决此问题的一种有前景的方法。
+
+## Goal 目标
 
 Our goal is to build a lightweight, multi-agent system around chat models that customizes the research process.
 
-`Source Selection` 
-* Users can choose any set of input sources for their research.
-  
-`Planning` 
-* Users provide a topic, and the system generates a team of AI analysts, each focusing on one sub-topic.
-* `Human-in-the-loop` will be used to refine these sub-topics before research begins.
-  
-`LLM Utilization`
-* Each analyst will conduct in-depth interviews with an expert AI using the selected sources.
-* The interview will be a multi-turn conversation to extract detailed insights as shown in the [STORM](https://arxiv.org/abs/2402.14207) paper.
-* These interviews will be captured in a using `sub-graphs` with their internal state. 
-   
-`Research Process`
-* Experts will gather information to answer analyst questions in `parallel`.
-* And all interviews will be conducted simultaneously through `map-reduce`.
+我们的目标是围绕聊天模型构建一个轻量级的多智能体系统，以定制研究流程。
 
-`Output Format` 
+`Source Selection`
+
+`源选择`
+
+* Users can choose any set of input sources for their research.
+  - 用户可为其研究任意选择一组输入源。
+
+`Planning`
+
+`规划`
+
+* Users provide a topic, and the system generates a team of AI analysts, each focusing on one sub-topic.
+  - 用户提供一个主题，系统将生成一支 AI 分析师团队，每位分析师聚焦于一个子主题。
+
+* `Human-in-the-loop` will be used to refine these sub-topics before research begins.
+  - 将在研究开始前通过 `人在环路（Human-in-the-loop）` 对这些子主题进行优化。
+
+`LLM Utilization`
+
+`LLM 使用`
+
+* Each analyst will conduct in-depth interviews with an expert AI using the selected sources.
+  - 每位分析师将使用所选源，与一位专家级 AI 进行深入访谈。
+
+* The interview will be a multi-turn conversation to extract detailed insights as shown in the [STORM](https://arxiv.org/abs/2402.14207) paper.
+  - 该访谈将采用多轮对话形式，以提取详细见解，如 [STORM](https://arxiv.org/abs/2402.14207) 论文所述。
+
+* These interviews will be captured in a using `sub-graphs` with their internal state. 
+  - 这些访谈将借助 `子图（sub-graphs）` 及其内部状态予以记录。
+
+`Research Process`
+
+`研究流程`
+
+* Experts will gather information to answer analyst questions in `parallel`.
+  - 专家将并行地搜集信息，以回答分析师提出的问题。
+
+* And all interviews will be conducted simultaneously through `map-reduce`.
+  - 所有访谈将通过 `map-reduce` 同时开展。
+
+`Output Format`
+
+`输出格式`
+
 * The gathered insights from each interview will be synthesized into a final report.
+  - 每次访谈所获取的见解将被综合为一份最终报告。
+
 * We'll use customizable prompts for the report, allowing for a flexible output format. 
+  - 我们将使用可自定义的提示词生成报告，从而支持灵活的输出格式。
 
 ![Screenshot 2024-08-26 at 7.26.33 PM.png](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66dbb164d61c93d48e604091_research-assistant1.png)
+
 
 
 ```python
@@ -50,7 +105,8 @@ Our goal is to build a lightweight, multi-agent system around chat models that c
 %pip install --quiet -U langgraph langchain_openai langchain_community langchain_core tavily-python wikipedia
 ```
 
-## Setup
+## Setup 环境准备
+
 
 
 ```python
@@ -75,6 +131,9 @@ llm = ChatOpenAI(model=os.getenv("OPENAI_MODEL", "qwen-plus"), base_url=os.geten
 
 We'll use [LangSmith](https://docs.langchain.com/langsmith/home) for [tracing](https://docs.langchain.com/langsmith/observability-concepts).
 
+我们将使用 [LangSmith](https://docs.langchain.com/langsmith/home) 实现 [追踪（tracing）](https://docs.langchain.com/langsmith/observability-concepts)。
+
+
 
 ```python
 _set_env("LANGSMITH_API_KEY")
@@ -82,9 +141,12 @@ os.environ["LANGSMITH_TRACING"] = "true"
 os.environ["LANGSMITH_PROJECT"] = "langchain-academy"
 ```
 
-## Generate Analysts: Human-In-The-Loop
+## Generate Analysts: Human-In-The-Loop 生成分析师：人在环路（Human-In-The-Loop）
 
 Create analysts and review them using human-in-the-loop.
+
+创建分析师，并通过人在环路（human-in-the-loop）对其进行审核。
+
 
 
 ```python
@@ -387,11 +449,14 @@ for analyst in analysts:
     --------------------------------------------------
 
 
-## Conduct Interview
+## Conduct Interview 开展访谈
 
-### Generate Question
+### Generate Question 生成问题
 
 The analyst will ask questions to the expert.
+
+分析师将向专家提问。
+
 
 
 ```python
@@ -445,18 +510,32 @@ def generate_question(state: InterviewState):
     return {"messages": [question]}
 ```
 
-### Generate Answer: Parallelization
+### Generate Answer: Parallelization 生成答案：并行化
 
 The expert will gather information from multiple sources in parallel to answer questions.
 
+专家将并行地从多个来源搜集信息，以回答问题。
+
 For example, we can use:
 
+例如，我们可以使用：
+
 * Specific web sites e.g., via [`WebBaseLoader`](https://docs.langchain.com/oss/python/integrations/document_loaders/web_base)
+  - 特定网站（例如，通过 [`WebBaseLoader`](https://docs.langchain.com/oss/python/integrations/document_loaders/web_base)）
+
 * Indexed documents e.g., via [RAG](https://docs.langchain.com/oss/python/langchain/retrieval)
+  - 已索引文档（例如，通过 [RAG](https://docs.langchain.com/oss/python/langchain/retrieval)）
+
 * Web search
+  - 网络搜索
+
 * Wikipedia search
+  - 维基百科搜索
 
 You can try different web search tools, like [Tavily](https://tavily.com/).
+
+您可以尝试不同的网络搜索工具，例如 [Tavily](https://tavily.com/)。
+
 
 
 ```python
@@ -483,9 +562,16 @@ from langchain_community.document_loaders import WikipediaLoader
 
 Now, we create nodes to search the web and wikipedia.
 
+现在，我们创建用于网络和维基百科搜索的节点。
+
 We'll also create a node to answer analyst questions.
 
+我们还将创建一个用于回答分析师问题的节点。
+
 Finally, we'll create nodes to save the full interview and to write a summary ("section") of the interview.
+
+最后，我们将创建用于保存完整访谈内容以及撰写访谈摘要（即“章节”）的节点。
+
 
 
 ```python
@@ -749,6 +835,9 @@ analysts[0]
 
 Here, we run the interview passing an index of the llama3.1 paper, which is related to our topic.
 
+此处，我们运行访谈流程，并传入一篇与主题相关的 llama3.1 论文索引。
+
+
 
 ```python
 from IPython.display import Markdown
@@ -784,15 +873,22 @@ In summary, LangGraph offers a transformative approach to AI agent development, 
 
 
 
-### Parallelze interviews: Map-Reduce
+### Parallelze interviews: Map-Reduce 并行化访谈：Map-Reduce
 
 We parallelize the interviews via the `Send()` API, a map step.
 
+我们通过 `Send()` API 并行化访谈，这是一个 map 步骤。
+
 We combine them into the report body in a reduce step.
 
-### Finalize
+我们在 reduce 步骤中将它们合并至报告正文。
+
+### Finalize 收尾
 
 We add a final step to write an intro and conclusion to the final report.
+
+我们添加一个最终步骤，为最终报告撰写引言和结论。
+
 
 
 ```python
@@ -982,6 +1078,9 @@ display(Image(graph.get_graph(xray=1).draw_mermaid_png()))
 
 
 Let's ask an open-ended question about LangGraph.
+
+让我们就 LangGraph 提出一个开放式问题。
+
 
 
 ```python
@@ -1180,7 +1279,12 @@ LangGraph emerges as a transformative agent framework in the AI landscape, offer
 
 We can look at the trace:
 
+我们可以查看追踪记录：
+
 https://smith.langchain.com/public/2933a7bb-bcef-4d2d-9b85-cc735b22ca0c/r
+
+https://smith.langchain.com/public/2933a7bb-bcef-4d2d-9b85-cc735b22ca0c/r
+
 
 
 ```python

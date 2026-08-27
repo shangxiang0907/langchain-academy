@@ -1,26 +1,46 @@
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-3/time-travel.ipynb) [![Open in LangChain Academy](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/58239536-lesson-5-time-travel)
 
-# Time travel
+[![在 Colab 中打开](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-3/time-travel.ipynb) [![在 LangChain 学院中打开](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/58239536-lesson-5-time-travel)
 
-## Review
+
+# Time travel 时间旅行
+
+## Review 复习
 
 We discussed motivations for human-in-the-loop:
 
+我们讨论了引入人工干预（human-in-the-loop）的动因：
+
 (1) `Approval` - We can interrupt our agent, surface state to a user, and allow the user to accept an action
+
+（1）`审批（Approval）`——我们可以中断代理运行，将当前状态呈现给用户，并允许用户接受某项操作
 
 (2) `Debugging` - We can rewind the graph to reproduce or avoid issues
 
-(3) `Editing` - You can modify the state 
+（2）`调试（Debugging）`——我们可以将图倒回到某个历史状态，以复现或规避问题
+
+(3) `Editing` - You can modify the state
+
+（3）`编辑（Editing）`——您可以修改状态
 
 We showed how breakpoints can stop the graph at specific nodes or allow the graph to dynamically interrupt itself.
 
+我们展示了断点如何在特定节点处暂停图的执行，或让图动态地自行中断。
+
 Then we showed how to proceed with human approval or directly edit the graph state with human feedback.
 
-## Goals
+随后，我们展示了如何基于人工审批继续执行，或直接利用人工反馈编辑图状态。
 
-Now, let's show how LangGraph [supports debugging](https://docs.langchain.com/oss/python/langgraph/use-time-travel) by viewing, re-playing, and even forking from past states. 
+## Goals 目标
+
+Now, let's show how LangGraph [supports debugging](https://docs.langchain.com/oss/python/langgraph/use-time-travel) by viewing, re-playing, and even forking from past states.
+
+现在，让我们展示 LangGraph 如何通过查看、重放甚至从历史状态分叉（forking）来[支持调试](https://docs.langchain.com/oss/python/langgraph/use-time-travel)。
 
 We call this `time travel`.
+
+我们将此称为 `时间旅行（time travel）`。
+
 
 
 ```python
@@ -43,6 +63,9 @@ _set_env("OPENAI_API_KEY")
 ```
 
 Let's build our agent.
+
+让我们构建我们的代理。
+
 
 
 ```python
@@ -132,6 +155,9 @@ display(Image(graph.get_graph(xray=True).draw_mermaid_png()))
 
 Let's run it, as before.
 
+让我们像之前一样运行它。
+
+
 
 ```python
 # Input
@@ -164,9 +190,12 @@ for event in graph.stream(initial_input, thread, stream_mode="values"):
     The result of multiplying 2 and 3 is 6.
 
 
-## Browsing History
+## Browsing History 浏览历史记录
 
 We can use `get_state` to look at the **current** state of our graph, given the `thread_id`!
+
+我们可以使用 `get_state`，结合 `thread_id`，查看图的**当前**状态！
+
 
 
 ```python
@@ -182,7 +211,11 @@ graph.get_state({'configurable': {'thread_id': '1'}})
 
 We can also browse the state history of our agent.
 
+我们还可以浏览代理的状态历史记录。
+
 `get_state_history` lets us get the state at all prior steps.
+
+`get_state_history` 可让我们获取所有先前步骤对应的状态。
 
 
 
@@ -204,6 +237,9 @@ len(all_states)
 
 The first element is the current state, just as we got from `get_state`.
 
+第一个元素即为当前状态，与调用 `get_state` 所得结果一致。
+
+
 
 ```python
 all_states[-2]
@@ -216,17 +252,26 @@ all_states[-2]
 
 
 
-Everything above we can visualize here: 
+Everything above we can visualize here:
+
+以上所有内容均可在此处可视化：
 
 ![fig1.jpg](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66dbb038211b544898570be3_time-travel1.png)
 
-## Replaying 
+
+## Replaying  重放
 
 We can re-run our agent from any of the prior steps.
 
+我们可以从任意先前步骤重新运行我们的代理。
+
 ![fig2.jpg](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66dbb038a0bd34b541c78fb8_time-travel2.png)
 
+
 Let's look back at the step that recieved human input!
+
+让我们回顾一下接收人工输入的那个步骤！
+
 
 
 ```python
@@ -247,6 +292,9 @@ to_replay
 
 Look at the state.
 
+查看该状态。
+
+
 
 ```python
 to_replay.values
@@ -261,6 +309,9 @@ to_replay.values
 
 We can see the next node to call.
 
+我们可以看到下一个待调用的节点。
+
+
 
 ```python
 to_replay.next
@@ -274,6 +325,9 @@ to_replay.next
 
 
 We also get the config, which tells us the `checkpoint_id` as well as the `thread_id`.
+
+我们还能获得配置（config），其中包含 `checkpoint_id` 和 `thread_id`。
+
 
 
 ```python
@@ -291,9 +345,16 @@ to_replay.config
 
 To replay from here, we simply pass the config back to the agent!
 
-The graph knows that this checkpoint has aleady been executed. 
+要从此处重放，只需将该配置传回给代理即可！
+
+The graph knows that this checkpoint has aleady been executed.
+
+图知道该检查点（checkpoint）已被执行过。
 
 It just re-plays from this checkpoint!
+
+它仅从此检查点开始重放！
+
 
 
 ```python
@@ -322,13 +383,21 @@ for event in graph.stream(None, to_replay.config, stream_mode="values"):
 
 Now, we can see our current state after the agent re-ran.
 
-## Forking
+现在，我们可以看到代理重放后得到的当前状态。
+
+
+## Forking 分叉
 
 What if we want to run from that same step, but with a different input.
 
+如果我们希望从同一检查点出发，但使用不同的输入，该怎么办？
+
 This is forking.
 
+这就是分叉（forking）。
+
 ![fig3.jpg](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66dbb038f89f2d847ee5c336_time-travel3.png)
+
 
 
 ```python
@@ -344,6 +413,9 @@ to_fork.values["messages"]
 
 
 Again, we have the config.
+
+同样，我们拥有该配置。
+
 
 
 ```python
@@ -361,14 +433,26 @@ to_fork.config
 
 Let's modify the state at this checkpoint.
 
-We can just run `update_state` with the `checkpoint_id` supplied. 
+让我们修改该检查点处的状态。
 
-Remember how our reducer on `messages` works: 
+We can just run `update_state` with the `checkpoint_id` supplied.
+
+我们只需调用 `update_state` 并传入 `checkpoint_id` 即可。
+
+Remember how our reducer on `messages` works:
+
+请回顾 `messages` 上的归约器（reducer）是如何工作的：
 
 * It will append, unless we supply a message ID.
+  - 除非提供消息 ID，否则它会追加消息。
+
 * We supply the message ID to overwrite the message, rather than appending to state!
+  - 我们提供消息 ID 以覆盖（overwrite）消息，而非向状态追加！
 
 So, to overwrite the the message, we just supply the message ID, which we have `to_fork.values["messages"].id`.
+
+因此，要覆盖该消息，我们只需提供其消息 ID，即 `to_fork.values["messages"].id`。
+
 
 
 ```python
@@ -394,10 +478,17 @@ fork_config
 
 
 This creates a new, forked checkpoint.
- 
-But, the metadata - e.g., where to go next - is perserved! 
+
+这将创建一个全新的、已分叉的检查点。
+
+But, the metadata - e.g., where to go next - is perserved!
+
+但元数据（例如下一步去向）会被保留！
 
 We can see the current state of our agent has been updated with our fork.
+
+我们可以看到，代理的当前状态已更新为我们的分叉结果。
+
 
 
 ```python
@@ -426,7 +517,12 @@ graph.get_state({'configurable': {'thread_id': '1'}})
 
 Now, when we stream, the graph knows this checkpoint has never been executed.
 
+现在，当我们进行流式输出（stream）时，图知道该检查点尚未被执行过。
+
 So, the graph runs, rather than simply re-playing.
+
+因此，图将实际运行，而非简单地重放。
+
 
 
 ```python
@@ -455,6 +551,9 @@ for event in graph.stream(None, fork_config, stream_mode="values"):
 
 Now, we can see the current state is the end of our agent run.
 
+现在，我们可以看到当前状态已是代理运行的最终状态。
+
+
 
 ```python
 graph.get_state({'configurable': {'thread_id': '1'}})
@@ -467,18 +566,44 @@ graph.get_state({'configurable': {'thread_id': '1'}})
 
 
 
-### Time travel with LangGraph API
+### Time travel with LangGraph API 通过 LangGraph API 实现时间旅行
 
 **⚠️ Notice**
 
-Since filming these videos, we've updated Studio so that it can now be run locally and accessed through your browser. This is the preferred way to run Studio instead of using the Desktop App shown in the video. It is now called _LangSmith Studio_ instead of _LangGraph Studio_. Detailed setup instructions are available in the "Getting Setup" guide at the start of the course. You can find a description of Studio [here](https://docs.langchain.com/langsmith/studio), and specific details for local deployment [here](https://docs.langchain.com/langsmith/quick-start-studio#local-development-server).  
+**⚠️ 注意**
+
+Since filming these videos, we've updated Studio so that it can now be run locally and accessed through your browser.
+
+自录制这些视频以来，我们已更新 Studio，使其现在可本地运行并通过浏览器访问。
+
+This is the preferred way to run Studio instead of using the Desktop App shown in the video.
+
+这是运行 Studio 的首选方式，而非视频中演示的桌面应用。
+
+It is now called _LangSmith Studio_ instead of _LangGraph Studio_.
+
+它现在被称为 _LangSmith Studio_，而非 _LangGraph Studio_。
+
+Detailed setup instructions are available in the "Getting Setup" guide at the start of the course.
+
+详细的安装说明见本课程开头的“环境准备（Getting Setup）”指南。
+
+You can find a description of Studio [here](https://docs.langchain.com/langsmith/studio), and specific details for local deployment [here](https://docs.langchain.com/langsmith/quick-start-studio#local-development-server).
+
+您可在此处查阅 Studio 的介绍文档：[链接](https://docs.langchain.com/langsmith/studio)，以及本地部署的具体细节：[链接](https://docs.langchain.com/langsmith/quick-start-studio#local-development-server)。
+
 To start the local development server, run the following command in your terminal in the `/studio` directory in this module:
+
+要在本地启动开发服务器，请在本模块的 `/studio` 目录下于终端中运行以下命令：
 
 ```
 langgraph dev
 ```
 
 You should see the following output:
+
+您应看到如下输出：
+
 ```
 - 🚀 API: http://127.0.0.1:2024
 - 🎨 Studio UI: https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024
@@ -487,7 +612,12 @@ You should see the following output:
 
 Open your browser and navigate to the **Studio UI** URL shown above.
 
-We connect to it via the SDK and show how the LangGraph API [supports time travel](https://docs.langchain.com/langsmith/human-in-the-loop-time-travel). 
+打开您的浏览器并导航至上方显示的 **Studio UI** URL。
+
+We connect to it via the SDK and show how the LangGraph API [supports time travel](https://docs.langchain.com/langsmith/human-in-the-loop-time-travel).
+
+我们通过 SDK 连接该服务，并展示 LangGraph API 如何[支持时间旅行](https://docs.langchain.com/langsmith/human-in-the-loop-time-travel)。
+
 
 
 ```python
@@ -501,9 +631,12 @@ from langgraph_sdk import get_client
 client = get_client(url="http://127.0.0.1:2024")
 ```
 
-#### Re-playing 
+#### Re-playing  重放
 
 Let's run our agent streaming `updates` to the state of the graph after each node is called.
+
+让我们运行代理，并对每个节点调用后的图状态流式输出 `updates`。
+
 
 
 ```python
@@ -534,9 +667,14 @@ async for chunk in client.runs.stream(
     {'content': 'The result of multiplying 2 and 3 is 6.', 'additional_kwargs': {}, 'response_metadata': {'finish_reason': 'stop', 'model_name': 'gpt-4o-2024-05-13', 'system_fingerprint': 'fp_fde2829a40'}, 'type': 'ai', 'name': None, 'id': 'run-1272d9b0-a0aa-4ff7-8bad-fdffd27c5506', 'example': False, 'tool_calls': [], 'invalid_tool_calls': [], 'usage_metadata': None}
 
 
-Now, let's look at **replaying** from a specified checkpoint. 
+Now, let's look at **replaying** from a specified checkpoint.
+
+现在，让我们查看如何从指定检查点进行**重放**。
 
 We simply need to pass the `checkpoint_id`.
+
+我们只需传入 `checkpoint_id`。
+
 
 
 ```python
@@ -579,7 +717,10 @@ to_replay
 
 
 
-Let's stream with `stream_mode="values"` to see the full state at every node as we replay. 
+Let's stream with `stream_mode="values"` to see the full state at every node as we replay.
+
+让我们使用 `stream_mode="values"` 进行流式处理，以便在重放过程中查看每个节点的完整状态。
+
 
 
 ```python
@@ -624,6 +765,9 @@ async for chunk in client.runs.stream(
 
 We can all view this as streaming only `updates` to state made by the nodes that we reply.
 
+我们可以将此理解为仅流式传输节点在重放时对状态所做的 `updates`（更新）。
+
+
 
 ```python
 async for chunk in client.runs.stream(
@@ -652,13 +796,20 @@ async for chunk in client.runs.stream(
     {'content': 'The result of multiplying 2 and 3 is 6.', 'additional_kwargs': {}, 'response_metadata': {'finish_reason': 'stop', 'model_name': 'gpt-4o-2024-05-13', 'system_fingerprint': 'fp_157b3831f5'}, 'type': 'ai', 'name': None, 'id': 'run-2326afa5-eb43-4568-b5ed-424c0a0fa076', 'example': False, 'tool_calls': [], 'invalid_tool_calls': [], 'usage_metadata': None}
 
 
-#### Forking
+#### Forking 分叉
 
 Now, let's look at forking.
 
+现在，让我们来看分叉。
+
 Let's get the same step as we worked with above, the human input.
 
+让我们获取与上文相同的步骤——即人类输入。
+
 Let's create a new thread with our agent.
+
+让我们使用我们的 agent 创建一个新线程。
+
 
 
 ```python
@@ -749,10 +900,18 @@ to_fork['checkpoint_id']
 
 Let's edit the state.
 
-Remember how our reducer on `messages` works: 
+让我们编辑状态。
+
+Remember how our reducer on `messages` works:
+
+还记得我们作用于 `messages` 的归约器（reducer）是如何工作的吗？
 
 * It will append, unless we supply a message ID.
+  - 除非我们提供消息 ID，否则它会追加消息。
+
 * We supply the message ID to overwrite the message, rather than appending to state!
+  - 我们提供消息 ID 是为了覆盖该消息，而非向状态中追加！
+
 
 
 ```python
@@ -824,6 +983,9 @@ states[0]
 
 To rerun, we pass in the `checkpoint_id`.
 
+要重新运行，需传入 `checkpoint_id`。
+
+
 
 ```python
 async for chunk in client.runs.stream(
@@ -855,3 +1017,5 @@ async for chunk in client.runs.stream(
 ### LangGraph Studio
 
 Let's look at forking in the Studio UI with our `agent`, which uses `module-1/studio/agent.py` set in `module-1/studio/langgraph.json`.
+
+让我们在 Studio UI 中查看我们 `agent` 的分叉功能，该 agent 使用 `module-1/studio/agent.py`，并在 `module-1/studio/langgraph.json` 中配置。

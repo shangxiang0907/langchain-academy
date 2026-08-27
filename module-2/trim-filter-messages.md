@@ -1,22 +1,39 @@
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-2/trim-filter-messages.ipynb) [![Open in LangChain Academy](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/58239435-lesson-4-trim-and-filter-messages)
 
-# Filtering and trimming messages
+[![在 Colab 中打开](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-2/trim-filter-messages.ipynb) [![在 LangChain 学院中打开](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/58239435-lesson-4-trim-and-filter-messages)
 
-## Review
 
-Now, we have a deeper understanding of a few things: 
+# Filtering and trimming messages 消息过滤与裁剪
+
+## Review 复习
+
+Now, we have a deeper understanding of a few things:
+
+现在，我们对以下几点有了更深入的理解：
 
 * How to customize the graph state schema
-* How to define custom state reducers
-* How to use multiple graph state schemas
+  - 如何自定义图状态模式
 
-## Goals
+* How to define custom state reducers
+  - 如何定义自定义状态归约器
+
+* How to use multiple graph state schemas
+  - 如何使用多种图状态模式
+
+## Goals 目标
 
 Now, we can start using these concepts with models in LangGraph!
- 
+
+现在，我们可以开始在 LangGraph 中将这些概念与模型结合使用了！
+
 In the next few sessions, we'll build towards a chatbot that has long-term memory.
 
+在接下来的几节课中，我们将构建一个具备长期记忆的聊天机器人。
+
 Because our chatbot will use messages, let's first talk a bit more about advanced ways to work with messages in graph state.
+
+由于我们的聊天机器人会使用消息，因此我们先更深入地探讨在图状态中处理消息的高级方法。
+
 
 
 ```python
@@ -40,7 +57,12 @@ _set_env("OPENAI_API_KEY")
 
 We'll use [LangSmith](https://docs.langchain.com/langsmith/home) for [tracing](https://docs.langchain.com/langsmith/observability-concepts).
 
-We'll log to a project, `langchain-academy`. 
+我们将使用 [LangSmith](https://docs.langchain.com/langsmith/home) 进行 [追踪](https://docs.langchain.com/langsmith/observability-concepts)。
+
+We'll log to a project, `langchain-academy`.
+
+我们将日志记录到项目 `langchain-academy` 中。
+
 
 
 ```python
@@ -49,9 +71,12 @@ os.environ["LANGSMITH_TRACING"] = "true"
 os.environ["LANGSMITH_PROJECT"] = "langchain-academy"
 ```
 
-## Messages as state
+## Messages as state 将消息作为状态
 
 First, let's define some messages.
+
+首先，我们来定义一些消息。
+
 
 
 ```python
@@ -76,6 +101,9 @@ for m in messages:
 
 Recall we can pass them to a chat model.
 
+回顾一下，我们可以将它们传递给聊天模型。
+
+
 
 ```python
 import os
@@ -92,6 +120,9 @@ llm.invoke(messages)
 
 
 We can run our chat model in a simple graph with `MessagesState`.
+
+我们可以使用 `MessagesState` 在一个简单图中运行我们的聊天模型。
+
 
 
 ```python
@@ -158,15 +189,24 @@ for m in output['messages']:
     Each of these ocean mammals has unique adaptations and behaviors that make them interesting subjects of study. If you're into marine biology, you might find their various ecosystems, social structures, and survival strategies particularly compelling.
 
 
-## Reducer
+## Reducer 归约器
 
-A practical challenge when working with messages is managing long-running conversations. 
+A practical challenge when working with messages is managing long-running conversations.
+
+在处理消息时，一个实际挑战是管理长时间运行的对话。
 
 Long-running conversations result in high token usage and latency if we are not careful, because we pass a growing list of messages to the model.
 
+如果不加注意，长时间运行的对话会导致高 token 消耗和延迟，因为我们向模型传递了一个不断增长的消息列表。
+
 We have a few ways to address this.
 
+我们有几种方法可以应对这一问题。
+
 First, recall the trick we saw using `RemoveMessage` and the `add_messages` reducer.
+
+首先，回顾我们之前用过的技巧：使用 `RemoveMessage` 和 `add_messages` 归约器。
+
 
 
 ```python
@@ -243,11 +283,16 @@ for m in output['messages']:
     Each of these groups has unique adaptations and behaviors that make them fascinating subjects of study. Happy researching!
 
 
-## Filtering messages
+## Filtering messages 消息过滤
 
 If you don't need or want to modify the graph state, you can just filter the messages you pass to the chat model.
 
+如果你不需要或不希望修改图状态，则可以直接过滤传递给聊天模型的消息。
+
 For example, just pass in a filtered list: `llm.invoke(messages[-1:])` to the model.
+
+例如，仅向模型传入一个经过过滤的列表：`llm.invoke(messages[-1:])`。
+
 
 
 ```python
@@ -273,6 +318,9 @@ display(Image(graph.get_graph().draw_mermaid_png()))
 
 
 Let's take our existing list of messages, append the above LLM response, and append a follow-up question.
+
+让我们取现有消息列表，追加上述 LLM 的响应，并再追加一个后续问题。
+
 
 
 ```python
@@ -424,19 +472,35 @@ for m in output['messages']:
 
 The state has all of the mesages.
 
+状态中包含了所有消息。
+
 But, let's look at the LangSmith trace to see that the model invocation only uses the last message:
+
+但让我们查看 LangSmith 追踪，以确认模型调用仅使用了最后一条消息：
 
 https://smith.langchain.com/public/75aca3ce-ef19-4b92-94be-0178c7a660d9/r
 
-## Trim messages
+https://smith.langchain.com/public/75aca3ce-ef19-4b92-94be-0178c7a660d9/r
 
-Another approach is to [trim messages](https://docs.langchain.com/oss/python/langgraph/add-memory#trim-messages), based upon a set number of tokens. 
+
+## Trim messages 裁剪消息
+
+Another approach is to [trim messages](https://docs.langchain.com/oss/python/langgraph/add-memory#trim-messages), based upon a set number of tokens.
+
+另一种方法是基于设定的 token 数量[裁剪消息](https://docs.langchain.com/oss/python/langgraph/add-memory#trim-messages)。
 
 This restricts the message history to a specified number of tokens.
 
+这会将消息历史限制为指定数量的 token。
+
 While filtering only returns a post-hoc subset of the messages between agents, trimming restricts the number of tokens that a chat model can use to respond.
 
+与过滤仅在代理之间事后返回消息子集不同，裁剪限制了聊天模型用于生成响应的 token 数量。
+
 See the `trim_messages` below.
+
+参见下方的 `trim_messages`。
+
 
 
 ```python
@@ -503,5 +567,9 @@ messages_out_trim = graph.invoke({'messages': messages})
 ```
 
 Let's look at the LangSmith trace to see the model invocation:
+
+让我们查看 LangSmith 追踪以观察模型调用：
+
+https://smith.langchain.com/public/b153f7e9-f1a5-4d60-8074-f0d7ab5b42ef/r
 
 https://smith.langchain.com/public/b153f7e9-f1a5-4d60-8074-f0d7ab5b42ef/r

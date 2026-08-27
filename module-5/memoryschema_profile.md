@@ -1,24 +1,45 @@
-# Chatbot with Profile Schema 
+# Chatbot with Profile Schema  使用用户档案模式的聊天机器人
 
-## Review
+## Review 回顾
 
 We introduced the [LangGraph Memory Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore) as a way to save and retrieve long-term memories.
 
+我们介绍了 [LangGraph Memory Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore)，作为一种保存和检索长期记忆的方法。
+
 We built a simple chatbot that uses both `short-term (within-thread)` and `long-term (across-thread)` memory.
+
+我们构建了一个简单的聊天机器人，它同时使用 `短期（线程内）` 和 `长期（跨线程）` 记忆。
 
 It saved long-term [semantic memory](https://docs.langchain.com/oss/python/concepts/memory#semantic-memory) (facts about the user) ["in the hot path"](https://docs.langchain.com/oss/python/concepts/memory#writing-memories), as the user is chatting with it.
 
-## Goals
+它在用户与其聊天时，将长期 [语义记忆](https://docs.langchain.com/oss/python/concepts/memory#semantic-memory)（关于用户的事实）[“在热路径中”](https://docs.langchain.com/oss/python/concepts/memory#writing-memories) 进行保存。
 
-Our chatbot saved memories as a string. In practice, we often want memories to have a structure. 
- 
-For example, memories can be a [single, continuously updated schema](https://docs.langchain.com/oss/python/concepts/memory#profile). 
- 
+## Goals 目标
+
+Our chatbot saved memories as a string.
+
+我们的聊天机器人将记忆保存为字符串。
+
+In practice, we often want memories to have a structure.
+
+在实践中，我们通常希望记忆具有结构。
+
+For example, memories can be a [single, continuously updated schema](https://docs.langchain.com/oss/python/concepts/memory#profile).
+
+例如，记忆可以是 [单个、持续更新的模式](https://docs.langchain.com/oss/python/concepts/memory#profile)。
+
 In our case, we want this to be a single user profile.
- 
-We'll extend our chatbot to save semantic memories to a single [user profile](https://docs.langchain.com/oss/python/concepts/memory#profile). 
 
-We'll also introduce a library, [Trustcall](https://github.com/hinthornw/trustcall), to update this schema with new information. 
+在本例中，我们希望它是一个单一的用户档案。
+
+We'll extend our chatbot to save semantic memories to a single [user profile](https://docs.langchain.com/oss/python/concepts/memory#profile).
+
+我们将扩展聊天机器人，以将语义记忆保存到单一的 [用户档案](https://docs.langchain.com/oss/python/concepts/memory#profile) 中。
+
+We'll also introduce a library, [Trustcall](https://github.com/hinthornw/trustcall), to update this schema with new information.
+
+我们还将引入一个名为 [Trustcall](https://github.com/hinthornw/trustcall) 的库，用于根据新信息更新该模式。
+
 
 
 ```python
@@ -45,11 +66,16 @@ os.environ["LANGSMITH_TRACING"] = "true"
 os.environ["LANGSMITH_PROJECT"] = "langchain-academy"
 ```
 
-## Defining a user profile schema
+## Defining a user profile schema 定义用户档案模式
 
-Python has many different types for [structured data](https://docs.langchain.com/oss/python/langchain/models#structured-outputs), such as TypedDict, Dictionaries, JSON, and [Pydantic](https://docs.pydantic.dev/latest/). 
+Python has many different types for [structured data](https://docs.langchain.com/oss/python/langchain/models#structured-outputs), such as TypedDict, Dictionaries, JSON, and [Pydantic](https://docs.pydantic.dev/latest/).
+
+Python 提供了多种用于 [结构化数据](https://docs.langchain.com/oss/python/langchain/models#structured-outputs) 的类型，例如 TypedDict、字典、JSON 和 [Pydantic](https://docs.pydantic.dev/latest/)。
 
 Let's start by using TypedDict to define a user profile schema.
+
+让我们首先使用 TypedDict 来定义用户档案模式。
+
 
 
 ```python
@@ -61,9 +87,12 @@ class UserProfile(TypedDict):
     interests: List[str]  # A list of the user's interests
 ```
 
-## Saving a schema to the store
+## Saving a schema to the store 将模式保存至存储
 
-The  [LangGraph Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore) accepts any Python dictionary as the `value`. 
+The  [LangGraph Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore) accepts any Python dictionary as the `value`.
+
+[LangGraph Store](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore) 接受任意 Python 字典作为 `value`。
+
 
 
 ```python
@@ -83,6 +112,9 @@ user_profile
 
 
 We use the [put](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore.put) method to save the TypedDict to the store.
+
+我们使用 [put](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore.put) 方法将 TypedDict 保存至存储。
+
 
 
 ```python
@@ -104,6 +136,9 @@ in_memory_store.put(namespace_for_memory, key, value)
 
 We use [search](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore.search) to retrieve objects from the store by namespace.
 
+我们使用 [search](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore.search) 方法按命名空间从存储中检索对象。
+
+
 
 ```python
 # Search 
@@ -115,6 +150,9 @@ for m in in_memory_store.search(namespace_for_memory):
 
 
 We can also use [get](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore.get) to retrieve a specific object by namespace and key.
+
+我们还可以使用 [get](https://reference.langchain.com/python/langgraph/store/?h=basestor#langgraph.store.base.BaseStore.get) 方法按命名空间和键检索特定对象。
+
 
 
 ```python
@@ -130,19 +168,32 @@ profile.value
 
 
 
-## Chatbot with profile schema
+## Chatbot with profile schema 使用用户档案模式的聊天机器人
 
 Now we know how to specify a schema for the memories and save it to the store.
 
+现在我们已了解如何为记忆指定模式并将其保存至存储。
+
 Now, how do we actually *create* memories with this particular schema?
 
-In our chatbot, we [want to create memories from a user chat](https://docs.langchain.com/oss/python/concepts/memory#profile). 
+那么，我们究竟该如何 *创建* 符合该特定模式的记忆呢？
 
-This is where the concept of [structured outputs](https://docs.langchain.com/oss/python/langchain/models#structured-outputs) is useful. 
+In our chatbot, we [want to create memories from a user chat](https://docs.langchain.com/oss/python/concepts/memory#profile).
+
+在我们的聊天机器人中，我们 [希望从用户聊天中创建记忆](https://docs.langchain.com/oss/python/concepts/memory#profile)。
+
+This is where the concept of [structured outputs](https://docs.langchain.com/oss/python/langchain/models#structured-outputs) is useful.
+
+此时，[结构化输出](https://docs.langchain.com/oss/python/langchain/models#structured-outputs) 的概念便非常有用。
 
 LangChain's [chat model](https://docs.langchain.com/oss/python/langchain/models) interface has a [`with_structured_output`](https://docs.langchain.com/oss/python/langchain/models#structured-outputs) method to enforce structured output.
 
+LangChain 的 [聊天模型](https://docs.langchain.com/oss/python/langchain/models) 接口提供 [`with_structured_output`](https://docs.langchain.com/oss/python/langchain/models#structured-outputs) 方法，以强制输出符合结构。
+
 This is useful when we want to enforce that the output conforms to a schema, and it parses the output for us.
+
+当我们希望确保输出符合某一模式，并由系统自动解析输出时，该方法非常有用。
+
 
 
 ```python
@@ -154,7 +205,12 @@ _set_env("OPENAI_API_KEY")
 
 Let's pass the `UserProfile` schema we created to the `with_structured_output` method.
 
+让我们将之前创建的 `UserProfile` 模式传入 `with_structured_output` 方法。
+
 We can then invoke the chat model with a list of [messages](https://docs.langchain.com/oss/python/langchain/messages) and get a structured output that conforms to our schema.
+
+然后，我们可以使用一组 [消息](https://docs.langchain.com/oss/python/langchain/messages) 调用聊天模型，并获得符合我们模式的结构化输出。
+
 
 
 ```python
@@ -184,9 +240,16 @@ structured_output
 
 Now, let's use this with our chatbot.
 
-This only requires minor changes to the `write_memory` function. 
+现在，让我们将此功能应用于我们的聊天机器人。
 
-We use `model_with_structure`, as defined above, to produce a profile that matches our schema. 
+This only requires minor changes to the `write_memory` function.
+
+这仅需对 `write_memory` 函数做少量修改。
+
+We use `model_with_structure`, as defined above, to produce a profile that matches our schema.
+
+我们使用上方定义的 `model_with_structure` 来生成符合我们模式的档案。
+
 
 
 ```python
@@ -318,9 +381,14 @@ for chunk in graph.stream({"messages": input_messages}, config, stream_mode="val
     Hi Lance! It's great to meet you. Biking around San Francisco sounds like a fantastic way to explore the city, and there are so many amazing bakeries to try. Do you have any favorite bakeries or biking routes in the city?
 
 
-Let's check the memory in the store. 
+Let's check the memory in the store.
+
+让我们检查存储中的记忆。
 
 We can see that the memory is a dictionary that matches our schema.
+
+我们可以看到，该记忆是一个符合我们模式的字典。
+
 
 
 ```python
@@ -338,13 +406,20 @@ existing_memory.value
 
 
 
-## When can this fail?
+## When can this fail? 何时会失败？
 
-[`with_structured_output`](https://docs.langchain.com/oss/python/langchain/models#structured-outputs) is very useful, but what happens if we're working with a more complex schema? 
+[`with_structured_output`](https://docs.langchain.com/oss/python/langchain/models#structured-outputs) is very useful, but what happens if we're working with a more complex schema?
 
-[Here's](https://github.com/hinthornw/trustcall?tab=readme-ov-file#complex-schema) an example of a more complex schema, which we'll test below. 
+[`with_structured_output`](https://docs.langchain.com/oss/python/langchain/models#structured-outputs) 非常有用，但若处理更复杂的模式，会发生什么情况？
+
+[Here's](https://github.com/hinthornw/trustcall?tab=readme-ov-file#complex-schema) an example of a more complex schema, which we'll test below.
+
+[此处](https://github.com/hinthornw/trustcall?tab=readme-ov-file#complex-schema) 展示了一个更复杂模式的示例，我们将在下方测试该示例。
 
 This is a [Pydantic](https://docs.pydantic.dev/latest/) model that describes a user's preferences for communication and trust fall.
+
+这是一个 [Pydantic](https://docs.pydantic.dev/latest/) 模型，用于描述用户在沟通与信任崩塌方面的偏好。
+
 
 
 ```python
@@ -387,6 +462,9 @@ class TelegramAndTrustFallPreferences(BaseModel):
 
 Now, let's try extraction of this schema using the `with_structured_output` method.
 
+现在，让我们尝试使用 `with_structured_output` 方法提取该模式。
+
+
 
 ```python
 from pydantic import ValidationError
@@ -423,30 +501,54 @@ except ValidationError as e:
 
 If we naively extract more complex schemas, even using high capacity model like `gpt-4o`, it is prone to failure.
 
+即使使用 `gpt-4o` 等高容量模型，若直接提取更复杂的模式，也极易失败。
 
-## Trustcall for creating and updating profile schemas
+
+## Trustcall for creating and updating profile schemas 用于创建和更新档案模式的 Trustcall
 
 As we can see, working with schemas can be tricky.
 
-Complex schemas can be difficult to extract. 
+如我们所见，处理模式可能颇具挑战性。
+
+Complex schemas can be difficult to extract.
+
+复杂模式难以准确提取。
 
 In addition, updating even simple schemas can pose challenges.
 
-Consider our above chatbot. 
+此外，即使是简单模式的更新也可能带来挑战。
+
+Consider our above chatbot.
+
+以我们上面的聊天机器人为例。
 
 We regenerated the profile schema *from scratch* each time we chose to save a new memory.
 
+每次选择保存新记忆时，我们都需从头重新生成整个档案模式。
+
 This is inefficient, potentially wasting model tokens if the schema contains a lot of information to re-generate each time.
+
+这种方式效率低下，若模式包含大量信息，则每次重新生成都可能浪费模型 token。
 
 Worse, we may loose information when regenerating the profile from scratch.
 
+更严重的是，在从头重新生成档案时，我们可能会丢失信息。
+
 Addressing these problems is the motivation for [TrustCall](https://github.com/hinthornw/trustcall)!
+
+解决上述问题，正是 [TrustCall](https://github.com/hinthornw/trustcall) 的设计初衷！
 
 This is an open-source library for updating JSON schemas developed by one [Will Fu-Hinthorn](https://github.com/hinthornw) on the LangChain team.
 
+这是一个开源库，由 LangChain 团队成员 [Will Fu-Hinthorn](https://github.com/hinthornw) 开发，专用于更新 JSON 模式。
+
 It's motivated by exactly these challenges while working on memory.
 
+其开发动机正是我们在处理记忆时所面临的这些挑战。
+
 Let's first show simple usage of extraction with TrustCall on this list of [messages](https://docs.langchain.com/oss/python/langchain/messages).
+
+我们首先展示 TrustCall 在该组 [消息](https://docs.langchain.com/oss/python/langchain/messages) 上进行提取的简单用法。
 
 
 
@@ -459,15 +561,28 @@ conversation = [HumanMessage(content="Hi, I'm Lance."),
 
 We use `create_extractor`, passing in the model as well as our schema as a [tool](https://docs.langchain.com/oss/python/langchain/tools).
 
-With TrustCall, can supply supply the schema in various ways. 
+我们使用 `create_extractor`，传入模型以及作为 [工具](https://docs.langchain.com/oss/python/langchain/tools) 的模式。
+
+With TrustCall, can supply supply the schema in various ways.
+
+借助 TrustCall，我们可以以多种方式提供模式。
 
 For example, we can pass a JSON object / Python dictionary or Pydantic model.
 
+例如，我们可以传入 JSON 对象 / Python 字典或 Pydantic 模型。
+
 Under the hood, TrustCall uses [tool calling](https://docs.langchain.com/oss/python/langchain/models#tool-calling) to produce [structured output](https://docs.langchain.com/oss/python/langchain/models#structured-outputs) from an input list of [messages](https://docs.langchain.com/oss/python/langchain/messages).
+
+TrustCall 底层使用 [工具调用](https://docs.langchain.com/oss/python/langchain/models#tool-calling)，从输入的 [消息](https://docs.langchain.com/oss/python/langchain/messages) 列表中生成 [结构化输出](https://docs.langchain.com/oss/python/langchain/models#structured-outputs)。
 
 To force Trustcall to produce structured output, we can include the schema name in the `tool_choice` argument.
 
+为强制 Trustcall 生成结构化输出，我们可在 `tool_choice` 参数中包含模式名称。
+
 We can invoke the extractor with  the above conversation.
+
+我们可以使用上述对话调用该提取器。
+
 
 
 ```python
@@ -498,9 +613,16 @@ result = trustcall_extractor.invoke({"messages": [SystemMessage(content=system_m
 
 When we invoke the extractor, we get a few things:
 
+当我们调用提取器时，会得到以下几项内容：
+
 * `messages`: The list of `AIMessages` that contain the tool calls. 
+  - `messages`：包含工具调用的 `AIMessages` 列表。
+
 * `responses`: The resulting parsed tool calls that match our schema.
+  - `responses`：匹配我们模式的已解析工具调用结果。
+
 * `response_metadata`: Applicable if updating existing tool calls. It says which of the responses correspond to which of the existing objects.
+  - `response_metadata`：仅在更新现有工具调用时适用，用于说明各响应分别对应哪些现有对象。
 
 
 
@@ -557,19 +679,36 @@ result["response_metadata"]
 
 Let's see how we can use it to *update* the profile.
 
-For updating, TrustCall takes a set of messages as well as the existing schema. 
+让我们看看如何使用它来*更新*个人资料。
+
+For updating, TrustCall takes a set of messages as well as the existing schema.
+
+对于更新操作，TrustCall 接收一组消息以及现有模式。
 
 The central idea is that it prompts the model to produce a [JSON Patch](https://jsonpatch.com/) to update only the relevant parts of the schema.
 
+其核心思想是提示模型生成一个 [JSON Patch](https://jsonpatch.com/)，仅更新模式中相关部分。
+
 This is less error-prone than naively overwriting the entire schema.
+
+这比简单地覆盖整个模式更不易出错。
 
 It's also more efficient since the model only needs to generate the parts of the schema that have changed.
 
+同时这也更高效，因为模型只需生成模式中已发生变化的部分。
+
 We can save the existing schema as a dict.
 
-We can use `model_dump()` to serialize a Pydantic model instance into a dict. 
+我们可以将现有模式保存为字典（dict）。
 
-We pass it to the `"existing"` argument along with the schema name, `UserProfile`. 
+We can use `model_dump()` to serialize a Pydantic model instance into a dict.
+
+可使用 `model_dump()` 将 Pydantic 模型实例序列化为字典。
+
+We pass it to the `"existing"` argument along with the schema name, `UserProfile`.
+
+我们将该字典连同模式名称 `UserProfile` 一起传入 `"existing"` 参数。
+
 
 
 ```python
@@ -630,9 +769,16 @@ updated_schema.model_dump()
 
 LangSmith trace:
 
+LangSmith 追踪记录：
+
+https://smith.langchain.com/public/229eae22-1edb-44c6-93e6-489124a43968/r
+
 https://smith.langchain.com/public/229eae22-1edb-44c6-93e6-489124a43968/r
 
 Now, let's also test Trustcall on the [challenging schema](https://github.com/hinthornw/trustcall?tab=readme-ov-file#complex-schema) that we saw earlier.
+
+接下来，我们也在之前看到的 [复杂模式](https://github.com/hinthornw/trustcall?tab=readme-ov-file#complex-schema) 上测试 TrustCall。
+
 
 
 ```python
@@ -671,15 +817,25 @@ result["responses"][0]
 
 
 
-Trace: 
+Trace:
+
+追踪记录：
+
+https://smith.langchain.com/public/5cd23009-3e05-4b00-99f0-c66ee3edd06e/r
 
 https://smith.langchain.com/public/5cd23009-3e05-4b00-99f0-c66ee3edd06e/r
 
 For more examples, you can see an overview video [here](https://www.youtube.com/watch?v=-H4s0jQi-QY).
 
-## Chatbot with profile schema updating
+更多示例请参阅此处的概览视频：[链接](https://www.youtube.com/watch?v=-H4s0jQi-QY)。
+
+
+## Chatbot with profile schema updating 支持个人资料模式更新的聊天机器人
 
 Now, let's bring Trustcall into our chatbot to create *and update* a memory profile.
+
+现在，让我们将 TrustCall 集成到我们的聊天机器人中，以实现个人资料记忆的*创建与更新*。
+
 
 
 ```python
@@ -894,6 +1050,9 @@ for chunk in graph.stream({"messages": input_messages}, config, stream_mode="val
 
 Continue the conversation in a new thread.
 
+在新线程中继续对话。
+
+
 
 ```python
 # We supply a thread ID for short-term (within-thread) memory
@@ -926,11 +1085,16 @@ for chunk in graph.stream({"messages": input_messages}, config, stream_mode="val
 
 Trace:
 
+追踪记录：
+
+https://smith.langchain.com/public/f45bdaf0-6963-4c19-8ec9-f4b7fe0f68ad/r
+
 https://smith.langchain.com/public/f45bdaf0-6963-4c19-8ec9-f4b7fe0f68ad/r
 
 ## Studio
 
 ![Screenshot 2024-10-30 at 11.26.31 AM.png](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/6732d0437060f1754ea79908_Screenshot%202024-11-11%20at%207.48.53%E2%80%AFPM.png)
+
 
 
 ```python

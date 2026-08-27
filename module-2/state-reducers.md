@@ -1,14 +1,22 @@
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-2/state-reducers.ipynb) [![Open in LangChain Academy](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/58239428-lesson-2-state-reducers)
 
-# State Reducers 
+[![在 Colab 中打开](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/langchain-ai/langchain-academy/blob/main/module-2/state-reducers.ipynb) [![在 LangChain 学院中打开](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba12c7b7688aa3dbb5e_LCA-badge-green.svg)](https://academy.langchain.com/courses/take/intro-to-langgraph/lessons/58239428-lesson-2-state-reducers)
 
-## Review
+
+# State Reducers  状态归约器
+
+## Review 复习
 
 We covered a few different ways to define LangGraph state schema, including `TypedDict`, `Pydantic`, or `Dataclasses`.
- 
-## Goals
+
+我们介绍了几种定义 LangGraph 状态模式的方法，包括 `TypedDict`、`Pydantic` 或 `Dataclasses`。
+
+## Goals 目标
 
 Now, we're going to dive into reducers, which specify how state updates are performed on specific keys / channels in the state schema.
+
+接下来，我们将深入探讨归约器（reducers），它用于指定如何对状态模式中的特定键 / 通道执行状态更新。
+
 
 
 ```python
@@ -16,9 +24,12 @@ Now, we're going to dive into reducers, which specify how state updates are perf
 %pip install --quiet -U langchain_core langgraph
 ```
 
-## Default overwriting state
+## Default overwriting state 默认的覆盖式状态更新
 
 Let's use a `TypedDict` as our state schema.
+
+我们以 `TypedDict` 作为状态模式。
+
 
 
 ```python
@@ -71,19 +82,30 @@ graph.invoke({"foo" : 1})
 
 Let's look at the state update, `return {"foo": state['foo'] + 1}`.
 
+我们来看状态更新语句：`return {"foo": state['foo'] + 1}`。
+
 As discussed before, by default LangGraph doesn't know the preferred way to update the state.
- 
-So, it will just overwrite the value of `foo` in `node_1`: 
+
+如前所述，默认情况下 LangGraph 并不知道首选的状态更新方式。
+
+So, it will just overwrite the value of `foo` in `node_1`:
+
+因此，它将直接在 `node_1` 中覆盖 `foo` 的值：
 
 ```
 return {"foo": state['foo'] + 1}
 ```
- 
+
 If we pass `{'foo': 1}` as input, the state returned from the graph is `{'foo': 2}`.
 
-## Branching
+如果我们传入 `{'foo': 1}` 作为输入，则图返回的状态为 `{'foo': 2}`。
+
+## Branching 分支
 
 Let's look at a case where our nodes branch.
+
+我们来看一个节点发生分支的情形。
+
 
 
 ```python
@@ -144,29 +166,57 @@ except InvalidUpdateError as e:
     InvalidUpdateError occurred: At key 'foo': Can receive only one value per step. Use an Annotated key to handle multiple values.
 
 
-We see a problem! 
+We see a problem!
+
+我们发现了一个问题！
 
 Node 1 branches to nodes 2 and 3.
 
+节点 1 分支至节点 2 和节点 3。
+
 Nodes 2 and 3 run in parallel, which means they run in the same step of the graph.
 
-They both attempt to overwrite the state *within the same step*. 
+节点 2 和节点 3 并行运行，这意味着它们在同一图步（step）中执行。
 
-This is ambiguous for the graph! Which state should it keep? 
+They both attempt to overwrite the state *within the same step*.
 
-## Reducers
+它们都试图在同一图步内覆盖状态。
+
+This is ambiguous for the graph!
+
+这对图而言是模糊不清的！
+
+Which state should it keep?
+
+它应保留哪一个状态？
+
+
+## Reducers 归约器
 
 [Reducers](https://docs.langchain.com/oss/python/langgraph/graph-api/#reducers) give us a general way to address this problem.
 
+[归约器](https://docs.langchain.com/oss/python/langgraph/graph-api/#reducers) 为我们提供了一种通用方法来解决此问题。
+
 They specify how to perform updates.
 
-We can use the `Annotated` type to specify a reducer function. 
+它们指定了如何执行更新。
+
+We can use the `Annotated` type to specify a reducer function.
+
+我们可以使用 `Annotated` 类型来指定一个归约函数。
 
 For example, in this case let's append the value returned from each node rather than overwriting them.
 
+例如，在本例中，我们选择将每个节点返回的值追加到列表中，而非覆盖它们。
+
 We just need a reducer that can perform this: `operator.add` is a function from Python's built-in operator module.
 
+我们只需一个能实现该功能的归约器：`operator.add` 是 Python 内置 `operator` 模块中的一个函数。
+
 When `operator.add` is applied to lists, it performs list concatenation.
+
+当 `operator.add` 应用于列表时，它执行的是列表拼接（concatenation）。
+
 
 
 ```python
@@ -218,7 +268,12 @@ graph.invoke({"foo" : [1]})
 
 Now, our state key `foo` is a list.
 
-This `operator.add` reducer function will append updates from each node to this list. 
+现在，我们的状态键 `foo` 是一个列表。
+
+This `operator.add` reducer function will append updates from each node to this list.
+
+这个 `operator.add` 归约函数会将每个节点的更新追加到该列表中。
+
 
 
 ```python
@@ -262,6 +317,9 @@ display(Image(graph.get_graph().draw_mermaid_png()))
 
 We can see that updates in nodes 2 and 3 are performed concurrently because they are in the same step.
 
+我们可以看到，节点 2 和节点 3 中的更新是并发执行的，因为它们处于同一图步中。
+
+
 
 ```python
 graph.invoke({"foo" : [1]})
@@ -281,7 +339,12 @@ graph.invoke({"foo" : [1]})
 
 Now, let's see what happens if we pass `None` to `foo`.
 
-We see an error because our reducer, `operator.add`, attempts to concatenate `NoneType` pass as input to list in `node_1`. 
+现在，让我们看看当向 `foo` 传入 `None` 时会发生什么。
+
+We see an error because our reducer, `operator.add`, attempts to concatenate `NoneType` pass as input to list in `node_1`.
+
+我们会看到一个错误，因为我们的归约器 `operator.add` 尝试将传入 `node_1` 的 `NoneType` 与列表进行拼接。
+
 
 
 ```python
@@ -294,11 +357,16 @@ except TypeError as e:
     TypeError occurred: can only concatenate list (not "NoneType") to list
 
 
-## Custom Reducers
+## Custom Reducers 自定义归约器
 
-To address cases like this,[we can also define custom reducers](https://docs.langchain.com/oss/python/langgraph/use-graph-api#process-state-updates-with-reducers). 
+To address cases like this,[we can also define custom reducers](https://docs.langchain.com/oss/python/langgraph/use-graph-api#process-state-updates-with-reducers).
+
+为应对这类情况，[我们还可以定义自定义归约器](https://docs.langchain.com/oss/python/langgraph/use-graph-api#process-state-updates-with-reducers)。
 
 For example, lets define custom reducer logic to combine lists and handle cases where either or both of the inputs might be `None`.
+
+例如，我们定义一个自定义归约逻辑，用于合并列表，并处理任一或两个输入均为 `None` 的情形。
+
 
 
 ```python
@@ -327,6 +395,9 @@ class CustomReducerState(TypedDict):
 ```
 
 In `node_1`, we append the value 2.
+
+在 `node_1` 中，我们追加数值 2。
+
 
 
 ```python
@@ -363,7 +434,14 @@ except TypeError as e:
     TypeError occurred: can only concatenate list (not "NoneType") to list
 
 
-Now, try with our custom reducer. We can see that no error is thrown.
+Now, try with our custom reducer.
+
+现在，尝试使用我们的自定义归约器。
+
+We can see that no error is thrown.
+
+我们可以看到，没有抛出任何错误。
+
 
 
 ```python
@@ -397,18 +475,29 @@ except TypeError as e:
     {'foo': [2]}
 
 
-## Messages
+## Messages 消息
 
 In module 1, we showed how to use a built-in reducer, `add_messages`, to handle messages in state.
 
-We also showed that [`MessagesState` is a useful shortcut if you want to work with messages](https://docs.langchain.com/oss/python/langgraph/use-graph-api#messagesstate). 
+在模块 1 中，我们展示了如何使用内置归约器 `add_messages` 来处理状态中的消息。
+
+We also showed that [`MessagesState` is a useful shortcut if you want to work with messages](https://docs.langchain.com/oss/python/langgraph/use-graph-api#messagesstate).
+
+我们还展示了 [`MessagesState` 是一个非常有用的快捷方式，适用于需要处理消息的场景](https://docs.langchain.com/oss/python/langgraph/use-graph-api#messagesstate)。
 
 * `MessagesState` has a built-in `messages` key 
-* It also has a built-in `add_messages` reducer for this key
+  - `MessagesState` 具有一个内置的 `messages` 键
 
-These two are equivalent. 
+* It also has a built-in `add_messages` reducer for this key
+  - 它还为此键内置了 `add_messages` 归约器
+
+These two are equivalent.
+
+这两者是等价的。
 
 We'll use the `MessagesState` class via `from langgraph.graph import MessagesState` for brevity.
+
+为简洁起见，我们将通过 `from langgraph.graph import MessagesState` 使用 `MessagesState` 类。
 
 
 
@@ -434,6 +523,9 @@ class ExtendedMessagesState(MessagesState):
 ```
 
 Let's talk a bit more about usage of the `add_messages` reducer.
+
+让我们更详细地讨论一下 `add_messages` 归约器的用法。
+
 
 
 ```python
@@ -463,11 +555,18 @@ add_messages(initial_messages , new_message)
 
 So we can see that `add_messages` allows us to append messages to the `messages` key in our state.
 
-### Re-writing
+因此我们可以看到，`add_messages` 允许我们将消息追加到状态的 `messages` 键中。
+
+### Re-writing 重写
 
 Let's show some useful tricks when working with the `add_messages` reducer.
 
+我们来展示一些在使用 `add_messages` 归约器时的实用技巧。
+
 If we pass a message with the same ID as an existing one in our `messages` list, it will get overwritten!
+
+如果我们传入一条消息，其 ID 与 `messages` 列表中已存在的某条消息相同，则该消息将被覆盖！
+
 
 
 ```python
@@ -491,9 +590,12 @@ add_messages(initial_messages , new_message)
 
 
 
-### Removal
+### Removal 移除
 
 We can remove messages by using [RemoveMessage](https://docs.langchain.com/oss/python/langgraph/add-memory#delete-messages).
+
+我们可以通过 [RemoveMessage](https://docs.langchain.com/oss/python/langgraph/add-memory#delete-messages) 删除消息。
+
 
 
 ```python
@@ -532,7 +634,12 @@ add_messages(messages , delete_messages)
 
 We can see that mesage IDs 1 and 2, as noted in `delete_messages` are removed by the reducer.
 
+我们可以看到，`delete_messages` 中注明的消息 ID 1 和 2 已被该归约器移除。
+
 We'll see this put into practice a bit later.
+
+稍后我们将看到这一操作的实际应用。
+
 
 
 ```python
