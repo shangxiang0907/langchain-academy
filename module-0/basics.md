@@ -315,8 +315,3 @@ search_docs
       'score': 0.9467988,
       'raw_content': None,
       'id': '37df7e-02'}]
-
-
-```python
-
-```
